@@ -18,10 +18,10 @@ Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.1.0
 Depends: 
     Biobase,
-    xcms,
-    loadings,
     rawrr,
-    faahKO
+    faahKO,
+    xcms,
+    loadings
 Suggests: 
     knitr,
     rmarkdown,
