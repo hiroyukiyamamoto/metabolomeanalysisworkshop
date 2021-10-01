@@ -5,7 +5,7 @@ on:
 
 env:
   cache-version: v1
-  repo-name: kozo2/trybiocworkshop
+  repo-name: kozo2/biocasia2021workshop
 
 jobs:
   job1:
