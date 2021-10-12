@@ -1,4 +1,4 @@
-url: https://hiroyukiyamamoto.github.io/MetabolomeAnalysisWorkshop
+url: https://hiroyukiyamamoto.github.io/metabolomeanalysisworkshop
 
 template:
   params:
@@ -6,13 +6,13 @@ template:
     #ganalytics: UA-99999999-9
 
 home:
-  title: "MetabolomeAnalysisWorkshop"
+  title: "metabolomeanalysisworkshop"
   type: inverse
 
 
 navbar:
   right:
    - icon: fa-github
-     href: https://github.com/hiroyukiyamamoto/MetabolomeAnalysisWorkshop
+     href: https://github.com/hiroyukiyamamoto/metabolomeanalysisworkshop
      
 
