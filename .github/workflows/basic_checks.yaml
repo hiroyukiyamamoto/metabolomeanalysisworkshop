@@ -6,7 +6,7 @@ on:
 
 env:
   cache-version: v1
-  repo-name: hiroyukiyamamoto/MetabolomeAnalysisWorkshop
+  repo-name: hiroyukiyamamoto/metabolomeanalysisworkshop
 
 jobs:
   job1:
