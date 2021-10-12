@@ -4,8 +4,8 @@ pkgdown_sha: ~
 articles:
   HOWTO_BUILD_WORKSHOP: HOWTO_BUILD_WORKSHOP.html
   workshop_example: workshop_example.html
-last_built: 2021-10-12T06:00Z
+last_built: 2021-10-12T07:47Z
 urls:
-  reference: https://hiroyukiyamamoto.github.io/MetabolomeAnalysisWorkshop/reference
-  article: https://hiroyukiyamamoto.github.io/MetabolomeAnalysisWorkshop/articles
+  reference: https://hiroyukiyamamoto.github.io/metabolomeanalysisworkshop/reference
+  article: https://hiroyukiyamamoto.github.io/metabolomeanalysisworkshop/articles
 
