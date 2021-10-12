@@ -38,7 +38,7 @@ Once running, navigate to https://localhost:8787/ and then login with `rstudio`:
 To try with **this** repository docker image:
 
 ```sh
-docker run -e PASSWORD=abc -p 8787:8787 seandavi/buildabiocworkshop2020
+docker run -e PASSWORD=abc -p 8787:8787 hyama/metabolomeanalysisworkshop
 ```
 
 *NOTE*: Running docker that uses the password in plain text like above exposes the password to others 
@@ -48,6 +48,4 @@ variable instead of plain text to pass along passwords and other secrets in dock
 
 ## Whatcha get
 
-https://seandavi.github.io/BuildABiocWorkshop
-
-![dockerhub](https://github.com/seandavi/BuildABiocWorkshop/raw/master/inst/images/dockerhub_result.png)
+https://hiroyukiyamamoto.github.io/metabolomeanalysisworkshop
