@@ -1,0 +1,188 @@
+---
+title: "主成分分析を用いたメタボロームデータ解析"
+author: "山本　博之"
+date: "2021年11月1日"
+output:
+  html_document: default
+---
+
+<style type="text/css">
+
+body, td {
+   font-size: 20px;
+   font-family: Noto Sans CJK JP Regular;
+}
+h2{
+  font-size: 30px;
+}
+code.r{
+  font-size: 20px;
+    font-family: Noto Sans CJK JP Regular;
+}
+pre {
+  font-size: 20px;
+}
+</style>
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## 主成分分析、Principal component analysis (PCA)
+
+loadingsパッケージを用いた主成分分析の流れについて説明する．
+<P>
+- データの説明
+    - loadingsパッケージのデモデータfastingを利用する
+    - 通常飼育と12時間絶食後のマウスの肝臓のメタボロームデータ
+
+## ライブラリとデータの読み込み
+fastingの変数Xにメタボロームデータが含まれている．
+
+```{r}
+library(loadings)
+
+data(fasting)
+
+X <- fasting$X
+
+```
+
+主成分分析には，prcomp関数が用いられる．またここではデータをautoscaling(各代謝物毎に，平均0，分散1にする)
+によるスケーリングを行っている．第1主成分と第2主成分スコアをプロットしたものを以下に示す．
+
+```{r fig.width=5}
+# PCA
+pca <- prcomp(X,scale=TRUE) # autoscaling
+
+# PC score
+PC_score <- pca$x[,c(1,2)] # First and second PCs
+
+# PC score plot
+class <- c(1,1,1,1,1,2,2,2,2,2)
+plot(PC_score, col=class, pch=16, cex=2)
+```
+
+黒丸が通常飼育，赤丸が12時間絶食後のマウスを表している．
+<P>
+主成分分析の結果より，第1主成分で群間差が確認されたことから，第1主成分スコアと関連する代謝物を確認することで，12時間の絶食で低値もしくは高値を示す代謝物を確認することが出来る．
+<P>
+次に実際に第1主成分スコアと関連する代謝物を主成分係数を用いて確認する．主成分係数の値が正または負に大きな上位10個の代謝物は次のようになる．
+
+```{r}
+# weight / PC coefficient / eigenvector
+PC_weight <- pca$rotation
+
+# PC1 weight
+PC1_weight <- pca$rotation[,1]
+
+# top 10 metabolites (positively correlated)
+PC1_weight[order(PC1_weight, decreasing=TRUE)[1:10]]
+
+# top 10 metabolites (negatively correlated)
+PC1_weight[order(PC1_weight, decreasing=FALSE)[1:10]]
+
+```
+
+主成分係数の値を見れば，相対的に主成分スコアと関連する代謝物を見つけることが出来るが，
+その値の大きさがどの程度まで関連する代謝物と言えるのか判断することが難しい．
+
+## 主成分係数と主成分負荷量の関係
+
+そこで，主成分係数の代わりに主成分負荷量を利用することを考える．主成分負荷量は，「主成分スコアと各代謝物レベルの相関係数」で定義される．
+<P>
+主成分係数と主成分負荷量の関係を確認するために，横軸に主成分係数，縦軸に主成分負荷量の散布図を以下に示す．
+
+```{r fig.width=5}
+
+# explain of PC coefficient
+R <- NULL
+for(i in 1:ncol(X)){
+  R[i] <- cor.test(PC_score[,1],X[,i])$estimate  
+}
+
+plot(PC1_weight,R, xlab = "PC coefficient", ylab="PC loading")
+
+```
+
+この結果より，主成分係数は「主成分スコアと各代謝物レベルの相関係数」である主成分負荷量と比例することが確認できる．<BR>
+つまり，主成分係数を用いてその値が大きい方から選んだ代謝物と，主成分負荷量を用いて選んだ代謝物は一致する．<BR>
+それに加えて，主成分負荷量は「主成分スコアと各代謝物レベルの相関係数」として定義されることから，
+主成分負荷量を用いることで，例えば相関係数が0.7以上で強い相関があるといった統計的な基準で代謝物を選ぶことが出来る．
+<P>
+主成分負荷量は，主成分スコアの分散の平方根を主成分係数に掛けることで計算することが出来る．
+
+```{r}
+lambda <- var(PC_score[,1])
+PC1_loading <- sqrt(lambda)*PC1_weight
+```
+
+loadingsパッケージを用いた主成分負荷量は，pca_loading関数を用いて，以下のように簡単に計算することが出来る．
+
+```{r}
+pca <- pca_loading(pca)
+PC_loading <- pca$loading$R
+p <- pca$loading$p.value
+```
+
+また主成分負荷量の統計的仮説検定により，p-valueを用いて有意な代謝物を選ぶことも出来る．[<a href="https://bmcbioinformatics.biomedcentral.com/articles/10.1186/1471-2105-15-51">Yamamoto et al., BMC Bioinformatics, (2014) 15(1):51.</a>]
+
+## 主成分負荷量を用いて代謝物の選ぶ
+
+実際に，第1主成分負荷量を用いて第1主成分スコアと関連する代謝物を選ぶ手順を次に示す．
+
+```{r}
+PC1_loading <- PC_loading[,1]
+
+# top 10 metabolites (positively correlated)
+PC1_loading[order(PC1_loading, decreasing=TRUE)[1:10]]
+
+# top 10 metabolites (negatively correlated)
+PC1_loading[order(PC1_loading, decreasing=FALSE)[1:10]]
+
+```
+
+第1主成分負荷量が0.7以上の代謝物は45物質，-0.7以下の代謝物70物質，
+第1主成分負荷量の統計的仮説検定の結果p<0.05の代謝物は138物質，
+Benjamini-Hochberg法によるq-valueが0.05未満の代謝物は102物質であることが以下のように確認できる．
+
+```{r}
+# Number of positively correlated metabolties
+sum(PC1_loading>=0.7)
+
+# Number of negatively correlated metabolties
+sum(PC1_loading<=-0.7)
+
+# Statistical hypothesis testing of PC loading
+p_PC1 <- pca$loading$p.value[,1]
+
+# Number of significant metabolites under p<0.05
+sum(p_PC1 < 0.05)
+
+# Number of significant metabolites under q<0.05
+q <- p.adjust(p_PC1,method="BH")
+sum(q < 0.05)
+```
+
+最後に，第1主成分スコアと最も相関の高い代謝物は，それぞれEthanolamine phosphateとBetonicineであり，
+その値はそれぞれEthanolamine phosphate(R=0.981, p=5.48×10^-7,q=8.92×10^-5)，Betonicine(R=-0.980, p=6.99×10^-7,q=8.92×10^-5)であった．
+
+```{r fig.width=5}
+# PC1 score
+plot(PC_score[,1], col=class, pch=16, cex=2)
+```
+
+```{r fig.width=10}
+# Ethanolamine phosphate (top 1 positively correlated metabolite with PC1 score)
+par(mfrow=c(1,2))
+plot(PC_score[,1], col=class, pch=16, cex=2, xlab="Sample", ylab="PC1")
+plot(X[,order(PC1_loading, decreasing=TRUE)[1]],col=class, pch=16, cex=2, xlab ="Sample", ylab="Ethanolamine phosphate")
+
+# Betonicine (top 1 negatively correlated metabolite with PC1 score)
+par(mfrow=c(1,2))
+plot(PC_score[,1], col=class, pch=16, cex=2, xlab="Sample", ylab="PC1")
+plot(X[,order(PC1_loading, decreasing=FALSE)[1]],col=class, pch=16, cex=2,xlab ="Sample", ylab="Betonicine")
+
+```
+
+

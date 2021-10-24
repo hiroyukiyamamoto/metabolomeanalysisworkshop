@@ -1,0 +1,333 @@
+---
+title: "Partial least squares(PLS)を用いたメタボロームデータ解析"
+author: "山本　博之"
+date: "2021年11月1日"
+output:
+  html_document: default
+---
+
+<style type="text/css">
+
+body, td {
+   font-size: 20px;
+   font-family: Noto Sans CJK JP Regular;
+}
+h2{
+  font-size: 30px;
+}
+code.r{
+  font-size: 20px;
+    font-family: Noto Sans CJK JP Regular;
+}
+pre {
+  font-size: 20px;
+}
+</style>
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+<a href="https://cran.r-project.org/web/packages/loadings/index.html">loadingsパッケージ</a>を用いたPLSの流れについて説明する．
+<P>
+- データの説明
+    - loadingsパッケージのデモデータwhhlを利用する
+    - Wildtype，高脂血症ウサギ，高脂血症ウサギに薬剤を投与した3群の肝臓のメタボロームデータ
+
+## ライブラリとデータの読み込み
+
+whhlの変数Xにメタボロームデータ，変数Yに群情報のダミー変数行列が含まれている．
+
+```{r fig.width=5}
+
+library(loadings)
+
+data(whhl)
+X <- whhl$X
+Y <- whhl$Y
+Y
+```
+
+## 主成分分析
+
+PLSを行う前に，まずは主成分分析を行う．
+
+```{r fig.width=5}
+
+pca <- prcomp(X,scale=TRUE) # PCA with autoscaling
+PC_score <- pca$x[,c(1,2)] # First and second PC scores
+
+# PC score plot
+class <- c(1,1,1,2,2,2,3,3,3)
+plot(PC_score, col=class, pch=16, cex=2, xlab="PC1", ylab="PC2", main="PCA Score")
+
+```
+
+黒丸がWild type，赤丸が高脂血症ウサギ，緑丸が高脂血症ウサギに薬剤を投与した群である．<BR>
+主成分分析の結果，第1主成分と第2主成分スコアには明確な群間差を確認することが出来なかった．
+<BR>
+
+## Partial least squares (PLS)
+
+主成分分析では明確な群間差が確認できなかったことから，PLSを用いて解析を行った．
+
+```{r fig.width=5}
+
+# PLS
+pls <- pls_svd(X,Y)
+
+# explanatory variable
+PLS_score <- pls$T[,c(1,2)] # First and second PLS
+
+class <- c(1,1,1,2,2,2,3,3,3)
+
+plot(PLS_score, col=class, pch=16, cex=2, xlab="PLS1", ylab="PLS2", main="PLS Score")
+
+```
+
+横軸の第1PLSスコアで，Wild typeと高脂血症ウサギの違いが確認されたことから，
+第1PLSスコアと関連する代謝物を知るために，第1PLS係数が大きな上位10物質に着目する．
+
+```{r fig.width=10}
+
+metabolite_name <- colnames(whhl$X)
+  
+# weight / PLS coeficient / eigenvector
+PLS_weight <- pls$P
+
+rownames(PLS_weight) <- metabolite_name
+
+# PLS1 weight
+PLS1_weight <- PLS_weight[,1] 
+
+# top 10 metabolites (positively correlated)
+PLS1_weight[order(PLS1_weight, decreasing=TRUE)[1:10]]
+
+# top 10 metabolites (negatively correlated)
+PLS1_weight[order(PLS1_weight, decreasing=FALSE)[1:10]]
+
+```
+
+## PLS係数とPLS負荷量の関係について
+
+ここで，PLS係数とPLS負荷量の関係について確認する．<BR>
+主成分分析では，主成分係数は「主成分スコアと各代謝物との相関係数」に比例していた．<BR>
+そこで，PLS係数と，「PLSスコアと各代謝物の相関係数」の確認する．
+
+```{r  fig.width=5}
+
+## explain of PLS coefficient
+# correlation with PLS score of explanatory variables
+R <- NULL
+for(i in 1:ncol(X)){
+  R[i] <- cor.test(PLS_score[,1],X[,i])$estimate
+}
+
+# PLS weight is not proportional with PLS score of explanatory variable
+plot(PLS1_weight, R)
+
+```
+
+この結果より，主成分分析における主成分係数とは異なり，PLS係数は「PLSスコアと各代謝物の相関係数」には<B>比例しない</B>ことが確認できる。
+<BR>
+
+## PLS負荷量を用いて代謝物を選ぶ
+
+次にPLS負荷量について確認するために，説明変数と目的変数のスコアの両方を確認する．
+
+```{r fig.width=10}
+
+# response variable
+PLS_score_Y <- pls$U[,c(1,2)] # First and second PLS
+
+par(mfrow=c(1,2))
+plot(PLS_score, col=class, pch=16, cex=2, xlab="PLS1", ylab="PLS2", main="PLS(X) Score")
+plot(PLS_score_Y, col=class, pch=16, cex=2, xlab="PLS1", ylab="PLS2", main="PLS(Y) Score")
+
+```
+
+上図の(左)は，先述の説明変数のPLS1とPLS2のスコア，(右)は目的変数のPLS1とPLS2のスコアをプロットしたものである．
+<P>
+左右の図を確認すると，Wild type(黒)，高脂血症ウサギ(赤)，薬剤投与後の高脂血症ウサギ(緑)の各群の配置はいずれも同じ傾向を示していることが確認できる．
+<P>
+横軸のPLS1では，Wild typeと高脂血症群との違いが確認されることから，ここではPLS1に着目し，関連する代謝物を調べる．<BR>
+<P>
+ここで，PLS係数とPLS1の「目的変数のスコアと各代謝物の相関係数」をプロットした結果を次に示す．<BR>
+
+```{r fig.width=5}
+
+# correlation with PLS score of response variables
+R <- NULL
+for(i in 1:ncol(X)){
+  R[i] <- cor.test(PLS_score_Y[,1],X[,i])$estimate
+}
+
+# plot(PLS_score_Y[,1], col=class, pch=16, cex=2, xlab="Sample", ylab="PLS1")
+
+# PLS weight is proportional with PLS score of response variable
+plot(PLS1_weight, R)
+
+```
+
+この結果より，PLS係数は「目的変数のスコアと各代謝物の相関係数」に比例することが確認できる．<BR>
+そこで，PLS負荷量を「説明変数のスコアと各代謝物の相関係数」ではなく「目的変数のスコアと各代謝物の相関係数」として定義する．ただし，前述の通り説明変数のスコアと目的変数のスコアの傾向は似ていることから，感覚的には両者に大きな違いは無い．
+<P>
+loadingsパッケージを用いたPLS負荷量は，pls_loadings関数を用い，以下のように簡単に計算することが出来る．
+<BR>
+次に，PLS1負荷量の値が大きな上位10物質を選ぶと以下のようになる．
+
+```{r fig.width=10}
+
+pls <- pls_loading(pls)
+
+PLS_loading <- pls$loading$R
+p_PLS <- pls$loading$p.value # Statistical hypothesis testing of PC loading
+
+rownames(PLS_loading) <- metabolite_name
+
+PLS1_loading <- PLS_loading[,1]
+p_PLS1 <- p_PLS[,1]
+
+# top 10 metabolites (positively correlated)
+PLS1_loading[order(PLS1_loading, decreasing=TRUE)[1:10]]
+
+# top 10 metabolites (negatively correlated)
+PLS1_loading[order(PLS1_loading, decreasing=FALSE)[1:10]]
+
+index_pos <- order(PLS1_loading, decreasing=TRUE)[1]
+index_neg <- order(PLS1_loading, decreasing=FALSE)[1]
+
+```
+<BR>
+第1PLS負荷量が0.7以上の代謝物は2物質，-0.7以下の代謝物は11物質，第1PLS負荷量の統計的仮説検定の結果p<0.05の代謝物は14物質，Benjamini-Hochberg法によるq-valueが0.05未満の代謝物は確認できなかった．
+<BR>
+```{r fig.width=10}
+
+# Number of positively correlated metabolties
+sum(PLS1_loading>=0.7)
+
+# Number of negatively correlated metabolties
+sum(PLS1_loading<=-0.7)
+
+# Number of significant metabolites under p<0.05
+sum(p_PLS1 < 0.05)
+
+# Number of significant metabolites under q<0.05
+q <- p.adjust(p_PLS1,method="BH")
+sum(q < 0.05)
+
+```
+<BR>
+最後に，第1PLSスコア(目的変数)と最も相関の高い代謝物は，それぞれ3-Hydroxy-3-methylglutaric acidとNADHであり，その値はそれぞれ3-Hydroxy-3-methylglutaric acid(R=0.7537, p=0.0190, q=0.3594)，
+NADH(R=-0.8253, p=0.0061, q=0.3594)であった．
+<BR>
+```{r fig.width=10}
+
+# 3-Hydroxy-3-methylglutaric acid
+par(mfrow=c(1,2))
+plot(PLS_score_Y[,1], col=class, pch=16, cex=2, xlab ="Sample", ylab="PLS1(Y)", main="PLS(Y) score")
+plot(X[,order(PLS1_loading, decreasing=TRUE)[1]], col=class, pch=16, cex=2, xlab="Sample", ylab="Relative Area",  main="3-Hydroxy-3-methylglutaric acid")
+
+# NADH
+par(mfrow=c(1,2))
+plot(PLS_score_Y[,1], col=class, pch=16, cex=2, xlab="Sample", ylab="PLS1(Y)", main="PLS(Y) score")
+plot(X[,order(PLS1_loading, decreasing=FALSE)[1]], col=class, pch=16, cex=2, xlab ="Sample", ylab="Relative Area", main="NADH")
+
+```
+
+## Partial least squares rank order of groups (PLS-ROG)を用いた解析
+
+ここまでPLSを用いて解析を行って来た．PLSでは，Wild typeと高脂血症群の違いは確認出来たが，高脂血症ウサギに薬剤を投与した時の影響については，明確には確認出来なかった．
+<P>
+そこで群に順序があるデータに適したPLS-ROG[<a href="https://analyticalsciencejournals.onlinelibrary.wiley.com/doi/10.1002/cem.2883">Yamamoto, H. PLS-ROG: Partial least squares with rank order of groups.J.Chemom. 2017, 31, e2883.</a>]を用いて解析を行った結果を次に示す．
+
+```{r fig.width=10}
+
+D <- whhl$D # Differentially matrix
+
+plsrog <- pls_rog(X,Y,D)
+
+PLSROG_score <- plsrog$T[,c(1,2)] # First and second PLS
+
+class <- c(1,1,1,2,2,2,3,3,3)
+
+par(mfrow=c(1,2))
+plot(PLS_score, col=class, pch=16, cex=2, xlab="PLS1", ylab="PLS2", main="PLS(X) score")
+plot(PLSROG_score, col=class, pch=16, cex=2, xlab="PLS1", ylab="PLS2", main="PLS-ROG(X) score")
+
+```
+<P>
+上図の左にPLS，右にPLS-ROGスコアの結果を示す．一見すると大きな違いは無いようにも見えるが，PLS-ROGの方が群に順序があるスコアが得られている．PLS1とPLS-ROG1のスコアの群毎の箱ひげ図を以下に示す．
+
+```{r fig.width=10}
+
+par(mfrow=c(1,2))
+boxplot(PLS_score[,1]~class, ylab="PLS1", main="PLS1(X) Score")
+boxplot(PLSROG_score[,1]~class, ylab="PLS-ROG1", main="PLS-ROG1(Y) Score")
+
+```
+<P>
+さらにPLSの目的変数のスコアを確認すると，次のようになる．
+
+```{r fig.width=10}
+
+PLSROG_score_Y <- plsrog$U[,c(1,2)] # First and second PLS
+
+par(mfrow=c(1,2))
+plot(PLS_score_Y, col=class, pch=16, cex=2, xlab="PLS1", ylab="PLS2", main="PLS(Y) Score")
+plot(PLSROG_score_Y, col=class, pch=16, cex=2, xlab="PLS-ROG1", ylab="PLS-ROG2", main="PLS-ROG(Y) Score")
+
+```
+<P>
+上図の左がPLS，右がPLS-ROGのスコアである．この結果より，PLS-ROGの横軸のPLS-ROG1で群の順序が確認出来ており，
+薬剤投与によって高脂血症群がWild typeに近づく傾向が得られていることから，PLS-ROG1負荷量より，薬剤投与により変動する代謝物を選び出すことが出来る．
+<P>
+
+```{r fig.width=10}
+
+par(mfrow=c(1,2))
+boxplot(PLS_score_Y[,1]~class, ylab="PLS1", main="PLS(Y) Score")
+boxplot(PLSROG_score_Y[,1]~class, ylab="PLS-ROG1", main="PLS-ROG(Y) Score")
+
+```
+
+## PLS-ROG loadings
+<P>
+PLS-ROG負荷量は，PLS負荷量と同じく「目的変数のスコアと各代謝物レベルの相関係数」として定義され，
+相関係数の値そのものや，統計的仮説検定を用いて有意な代謝物を選ぶことが出来る．
+<P>
+```{r fig.width=10}
+
+plsrog <- pls_loading(plsrog)
+
+PLSROG_loading <- plsrog$loading$R
+p_PLSROG <- plsrog$loading$p.value
+
+q1 <- p.adjust(p_PLSROG[,1],method="BH")
+
+```
+<P>
+最も正の相関が高い代謝物はN,N-Dimethylglycine(R=0.8869,p=0.0014,q=0.0994)を以下に示す．
+<P>
+```{r fig.width=10}
+
+# N,N-Dimethylglycine
+par(mfrow=c(1,2))
+plot(PLSROG_score_Y[,1], col=class, pch=16, cex=2, xlab="Sample", ylab="PLS-ROG1", main="PLS-ROG1(Y) Score")
+plot(X[,order(PLSROG_loading[,1], decreasing=TRUE)[1]], col=class, pch=16, cex=2, xlab="Sample", ylab="Relative Area", main="N,N-Dimethylglycine")
+
+```
+<P>
+最も負の相関が高い代謝物はHypoxanthine(R=-0.8770,p=0.0019,q=0.0994)を以下に示す．
+<P>
+```{r fig.width=10}
+
+# Hypoxanthine
+par(mfrow=c(1,2))
+plot(PLSROG_score_Y[,1], col=class, pch=16, cex=2, xlab="Sample", ylab="PLS-ROG1", main="PLS-ROG1(Y) Score")
+plot(X[,order(PLSROG_loading[,1], decreasing=FALSE)[1]], col=class, pch=16, cex=2, xlab="Sample", ylab="Relative Area", main="Hypoxanthine")
+
+```
+<P>
+以上のように，PLSで群の順序が確認されない場合にPLS-ROGを用いることで群の順序に関連するスコアが得られ，またその負荷量から関連する代謝物を選び出すことが出来る．
