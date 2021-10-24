@@ -2,7 +2,6 @@ on:
   push:
     branches:
       - master
-      - disable-check-actions
 
 env:
   cache-version: v1
