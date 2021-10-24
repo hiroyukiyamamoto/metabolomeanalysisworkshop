@@ -2,7 +2,7 @@ on:
   push:
     branches:
       - master
-      - test
+      - website-test
 
 env:
   cache-version: v1
