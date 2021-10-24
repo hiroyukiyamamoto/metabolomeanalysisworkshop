@@ -2,12 +2,10 @@ pandoc: 2.14.0.3
 pkgdown: 1.6.1
 pkgdown_sha: ~
 articles:
-  HOWTO_BUILD_WORKSHOP: HOWTO_BUILD_WORKSHOP.html
   pca: pca.html
   pls: pls.html
-  workshop_example: workshop_example.html
   xcms: xcms.html
-last_built: 2021-10-24T01:52Z
+last_built: 2021-10-24T08:34Z
 urls:
   reference: https://hiroyukiyamamoto.github.io/metabolomeanalysisworkshop/reference
   article: https://hiroyukiyamamoto.github.io/metabolomeanalysisworkshop/articles
