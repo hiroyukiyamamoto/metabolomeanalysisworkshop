@@ -1,0 +1,155 @@
+---
+title: "XCMSを用いた質量分析データ処理"
+author: "山本　博之"
+date: "2021年11月1日"
+output:
+  html_document: default
+---
+
+<style type="text/css">
+
+body, td {
+   font-size: 20px;
+   font-family: Noto Sans CJK JP Regular;
+}
+h2{
+  font-size: 30px;
+}
+code.r{
+  font-size: 20px;
+    font-family: Noto Sans CJK JP Regular;
+}
+pre {
+  font-size: 20px;
+}
+</style>
+
+<P>
+## 概要
+FAAH遺伝子欠損マウスの脊椎のメタボロームデータ(Wild type，Knock outマウスそれぞれ6サンプル)を利用し，xcmsを用いた質量分析データ処理の流れを説明する．
+<P>
+- データの説明 
+    - Fatty acid amide hydrolase (FAAH) : 脂肪酸アミドのアミド結合を切って脂肪酸とアミンに分解する酵素
+    - アナンダミド(脳内麻薬物質の一つ)→エタノールアミン＋アラキドン酸
+    - FAAH阻害薬は創薬ターゲットになっているが、様々な重篤な副作用が報告されている
+
+<P>
+XCMSのドキュメント「<a href="https://bioconductor.org/packages/release/bioc/vignettes/xcms/inst/doc/xcms.html">LCMS data preprocessing and analysis with xcms</a>」の(かなりの)簡略版
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, warning=FALSE, message=FALSE)
+```
+
+## ファイルの読み込み
+
+<P>
+faahKOパッケージには，ポジティブイオンモードのNetCDFファイルが含まれており，
+まずはじめにこのファイルを読み込む．
+
+```{r}
+
+library(xcms)
+library(faahKO)
+
+## load raw data
+cdfs <- dir(system.file("cdf", package = "faahKO"), full.names = TRUE, recursive = TRUE)
+cdfs
+
+raw_data <- readMSData(files = cdfs, mode="onDisk")
+
+```
+
+- その他フォーマットのファイルの読み込み
+    - readMSData関数では，NetCDFの他に，mzml/mzXML/mzData形式のファイルを読み込むことが出来る
+    - 質量分析計から得られた測定データを読み込むには，msconvertなどを用いてcentroidのmzmlに変換して利用されることが多い
+    - 測定データを直接読み込むには，例えばThermo Fisher Scientific社の.rawファイルではBioconductorパッケージ<a href="https://bioconductor.org/packages/release/bioc/html/rawrr.html">rawrr</a>が利用できる．
+
+## ピークピッキング
+データを読み込んだ後，ピークを拾い上げる処理であるピークピッキングを行う．ここでは，CentWaveと呼ばれるウェーブレット変換を用いた方法を用いている．<BR>
+ピークピッキングのパラメーターはCentWaveParam関数で設定される．パラメーターの値は，XCMSのドキュメントに記載されたものをそのまま利用しているが，実際は試行錯誤で決定する必要がある
+
+```{r}
+cwp <- CentWaveParam(peakwidth = c(20, 80), noise = 5000, prefilter = c(6, 5000))
+xdata <- findChromPeaks(raw_data, param = cwp)
+```
+
+## アライメント
+次に，クロマトグラムのアライメントと呼ばれる処理を行う．例として，保持時間が2760秒から2820秒までのtotal ion chromatogramを確認すると，以下に示すようにサンプル間で保持時間のズレが生じていることがわかる．
+
+```{r}
+tic <- chromatogram(xdata, aggregationFun="sum")
+plot(tic,xlim=c(2760,2820), peakType="none")
+```
+
+そこで，クロマトグラムの保持時間の補正をObiwarp法を用いて行った結果を次に示す．
+
+```{r}
+xdata <- adjustRtime(xdata, param = ObiwarpParam(binSize = 0.6))
+
+tic <- chromatogram(xdata, aggregationFun="sum")
+plot(tic,xlim=c(2760,2820), peakType="none")
+```
+
+この結果より，補正前に比べてサンプル間の保持時間のズレが小さくなっていることが確認できる．
+クロマトグラムのアライメントのパラメーターの値は，ピークピッキングと同様にXCMSのドキュメントに記載されたものを
+そのまま利用しているが，クロマトグラムの保持時間のズレ方は分析法によって異なることから，実際は試行錯誤で決める必要がある．
+
+## ピークの対応付け
+次に，それぞれのサンプル間でのピークを対応付けをgroupChromPeaks関数を用いて行う．
+PeakDensityParamはこれまでと同様に，パラメーターを変えながら試行錯誤で決める必要がある．
+
+```{r}
+## Group Peaks
+sample_group <- c(1,1,1,1,1,1,1,1,1,1,1,1)
+
+#sample_group <- cdfs
+pdp <- PeakDensityParam(sampleGroups = sample_group, minFraction = 0.4, bw = 30)
+xdata <- groupChromPeaks(xdata, param = pdp)
+```
+
+sampleGroupsはここでは全て1のベクトルを設定したが，例えば以下<BR>
+sample_group <- c("KO", "KO", "KO", "KO", "KO", "KO", "WT", "WT", "WT", "WT", "WT", "WT")<BR>
+のように，群毎に設定しても良い．
+
+## 欠損ピークの穴埋め
+ここまでの処理によって，各ピークとサンプルのデータ行列が作られ，次のようになっている．
+
+```{r}
+head(featureValues(xdata))
+```
+
+NAは欠損ピークである。欠損ピークは、再度測定データを確認して、実際にピークが存在するかどうか確認する必要がある。
+
+```{r}
+xdata <- fillChromPeaks(xdata, param = ChromPeakAreaParam())
+head(featureValues(xdata))
+```
+
+欠損ピークの穴埋めを行った後で、それでも欠損値になっていれば0を埋める
+
+## データ行列
+```{r}
+data <- t(featureValues(xdata, value="into")) # sample*peak
+
+# 行名と列名は付けるほうが良い
+data[is.na(data)] <- 0
+```
+
+最後に主成分分析を行ってデータを可視化する。<BR>
+
+## 主成分分析
+```{r fig.width=10}
+pca <- prcomp(data,scale=TRUE)
+class <- c(2,2,2,2,2,2,1,1,1,1,1,1)
+
+par(mfrow=c(1,2))
+plot(pca$x, col=class, pch=16, cex=1.5) # PC1 vs PC2
+plot(pca$x[,3:4], col=class, pch=16, cex=1.5) # PC3 vs PC4
+```
+
+黒丸がWild type，赤丸がKnock outマウスを表している．<BR>
+主成分分析の結果より，PC1とPC2で群間差は確認できなかったが、PC3で群間差を確認することが出来た。<BR>
+
+## その他
+全体を通して，xcmsではピークピッキング，クロマトグラムのアライメント，ピークの対応付けの各ステップで，複数のパラメーターを設定する必要があることがわかる．xcmsのパラメーターをチューニングするためのBioconductorパッケージとして<a  href="https://bioconductor.org/packages/release/bioc/html/IPO.html">IPO</a>や<a  href="https://bioconductor.org/packages/release/bioc/html/Autotuner.html">AutoTuner</a>がある．
+一方で，Lassenら(<a  href="https://doi.org/10.1021/acs.analchem.1c02000">https://doi.org/10.1021/acs.analchem.1c02000</a>)は，LC-MSの専門家がマニュアルで選んだパラメーターが最も良い結果であったと報告している．
