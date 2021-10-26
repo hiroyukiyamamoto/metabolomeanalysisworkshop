@@ -173,8 +173,9 @@ pre {
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="co"># PLS</span>
 <span class="va">pls</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/loadings/man/pls_svd.html">pls_svd</a></span><span class="op">(</span><span class="va">X</span>,<span class="va">Y</span><span class="op">)</span>
+<span class="co"># pls &lt;- pls_eigen(X,Y,2) # chemometricsパッケージのpls_eigen関数の場合</span>
 
-<span class="co"># explanatory variable</span>
+<span class="co"># PLSスコア</span>
 <span class="va">PLS_score</span> <span class="op">&lt;-</span> <span class="va">pls</span><span class="op">$</span><span class="cn">T</span><span class="op">[</span>,<span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">1</span>,<span class="fl">2</span><span class="op">)</span><span class="op">]</span> <span class="co"># First and second PLS</span>
 
 <span class="va">class</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">1</span>,<span class="fl">1</span>,<span class="fl">1</span>,<span class="fl">2</span>,<span class="fl">2</span>,<span class="fl">2</span>,<span class="fl">3</span>,<span class="fl">3</span>,<span class="fl">3</span><span class="op">)</span>
@@ -343,7 +344,7 @@ pre {
 <div id="partial-least-squares-rank-order-of-groups-pls-rogを用いた解析" class="section level2">
 <h2 class="hasAnchor">
 <a href="#partial-least-squares-rank-order-of-groups-pls-rog%E3%82%92%E7%94%A8%E3%81%84%E3%81%9F%E8%A7%A3%E6%9E%90" class="anchor"></a>Partial least squares rank order of groups (PLS-ROG)を用いた解析</h2>
-ここまでPLSを用いて解析を行って来た．PLSでは，Wild typeと高脂血症群の違いは確認出来たが，高脂血症ウサギに薬剤を投与した時の影響については，明確には確認出来なかった．
+PLSでは，Wild typeと高脂血症群の違いは確認出来たが，高脂血症ウサギに薬剤を投与した時の影響については，明確には確認出来なかった．
 <p>
 </p>
 <p>そこで群に順序があるデータに適したPLS-ROG[<a href="https://analyticalsciencejournals.onlinelibrary.wiley.com/doi/10.1002/cem.2883">Yamamoto, H. PLS-ROG: Partial least squares with rank order of groups.J.Chemom. 2017, 31, e2883.</a>]を用いて解析を行った結果を次に示す．</p>
@@ -386,9 +387,9 @@ pre {
 <span class="fu"><a href="https://rdrr.io/r/graphics/boxplot.html">boxplot</a></span><span class="op">(</span><span class="va">PLSROG_score_Y</span><span class="op">[</span>,<span class="fl">1</span><span class="op">]</span><span class="op">~</span><span class="va">class</span>, ylab<span class="op">=</span><span class="st">"PLS-ROG1"</span>, main<span class="op">=</span><span class="st">"PLS-ROG(Y) Score"</span><span class="op">)</span></code></pre></div>
 <p><img src="pls_files/figure-html/unnamed-chunk-14-1.png" width="960"></p>
 </div>
-<div id="pls-rog-loadings" class="section level2">
+<div id="pls-rog負荷量を用いて代謝物を選ぶ" class="section level2">
 <h2 class="hasAnchor">
-<a href="#pls-rog-loadings" class="anchor"></a>PLS-ROG loadings</h2>
+<a href="#pls-rog%E8%B2%A0%E8%8D%B7%E9%87%8F%E3%82%92%E7%94%A8%E3%81%84%E3%81%A6%E4%BB%A3%E8%AC%9D%E7%89%A9%E3%82%92%E9%81%B8%E3%81%B6" class="anchor"></a>PLS-ROG負荷量を用いて代謝物を選ぶ</h2>
 <p>
 PLS-ROG負荷量は，PLS負荷量と同じく「目的変数のスコアと各代謝物レベルの相関係数」として定義され， 相関係数の値そのものや，統計的仮説検定を用いて有意な代謝物を選ぶことが出来る．
 </p>

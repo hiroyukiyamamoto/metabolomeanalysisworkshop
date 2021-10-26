@@ -188,24 +188,25 @@ FAAH遺伝子欠損マウスの脊椎のメタボロームデータ(Wild type，
 <code class="sourceCode R"><span class="va">tic</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/xcms/man/chromatogram-method.html">chromatogram</a></span><span class="op">(</span><span class="va">xdata</span>, aggregationFun<span class="op">=</span><span class="st">"sum"</span><span class="op">)</span>
 <span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html">plot</a></span><span class="op">(</span><span class="va">tic</span>,xlim<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">2760</span>,<span class="fl">2820</span><span class="op">)</span>, peakType<span class="op">=</span><span class="st">"none"</span><span class="op">)</span></code></pre></div>
 <p><img src="xcms_files/figure-html/unnamed-chunk-3-1.png" width="700"></p>
-<p>そこで，クロマトグラムの保持時間の補正をObiwarp法を用いて行った結果を次に示す．</p>
+<p>そこで，クロマトグラムの保持時間をObiwarp法を用いて補正した結果を次に示す．</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">xdata</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/xcms/man/adjustRtime.html">adjustRtime</a></span><span class="op">(</span><span class="va">xdata</span>, param <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/xcms/man/adjustRtime-obiwarp.html">ObiwarpParam</a></span><span class="op">(</span>binSize <span class="op">=</span> <span class="fl">0.6</span><span class="op">)</span><span class="op">)</span>
 
 <span class="va">tic</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/xcms/man/chromatogram-method.html">chromatogram</a></span><span class="op">(</span><span class="va">xdata</span>, aggregationFun<span class="op">=</span><span class="st">"sum"</span><span class="op">)</span>
 <span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html">plot</a></span><span class="op">(</span><span class="va">tic</span>,xlim<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">2760</span>,<span class="fl">2820</span><span class="op">)</span>, peakType<span class="op">=</span><span class="st">"none"</span><span class="op">)</span></code></pre></div>
 <p><img src="xcms_files/figure-html/unnamed-chunk-4-1.png" width="700"></p>
-<p>この結果より，補正前に比べてサンプル間の保持時間のズレが小さくなっていることが確認できる． クロマトグラムのアライメントのパラメーターの値は，ピークピッキングと同様にXCMSのドキュメントに記載されたものを そのまま利用しているが，クロマトグラムの保持時間のズレ方は分析法によって異なることから，実際は試行錯誤で決める必要がある．</p>
+この結果より，補正前に比べてサンプル間の保持時間のズレが小さくなっていることが確認できる．<br><p>
+</p>
+<p>クロマトグラムのアライメントのパラメーターの値は，ピークピッキングと同様にXCMSのドキュメントに記載されたものを そのまま利用しているが，クロマトグラムの保持時間のズレ方は分析法によって異なることから，実際は試行錯誤により決める必要がある．</p>
 </div>
 <div id="ピークの対応付け" class="section level2">
 <h2 class="hasAnchor">
 <a href="#%E3%83%94%E3%83%BC%E3%82%AF%E3%81%AE%E5%AF%BE%E5%BF%9C%E4%BB%98%E3%81%91" class="anchor"></a>ピークの対応付け</h2>
-<p>次に，それぞれのサンプル間でのピークを対応付けをgroupChromPeaks関数を用いて行う． PeakDensityParamはこれまでと同様に，パラメーターを変えながら試行錯誤で決める必要がある．</p>
+<p>次に，それぞれのサンプル間でのピークを対応付けをgroupChromPeaks関数を用いて行う． PeakDensityParamはこれまでと同様に，パラメーターを変えながら試行錯誤により決める必要がある．</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="co">## Group Peaks</span>
 <span class="va">sample_group</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">1</span>,<span class="fl">1</span>,<span class="fl">1</span>,<span class="fl">1</span>,<span class="fl">1</span>,<span class="fl">1</span>,<span class="fl">1</span>,<span class="fl">1</span>,<span class="fl">1</span>,<span class="fl">1</span>,<span class="fl">1</span>,<span class="fl">1</span><span class="op">)</span>
 
-<span class="co">#sample_group &lt;- cdfs</span>
 <span class="va">pdp</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/xcms/man/groupChromPeaks-density.html">PeakDensityParam</a></span><span class="op">(</span>sampleGroups <span class="op">=</span> <span class="va">sample_group</span>, minFraction <span class="op">=</span> <span class="fl">0.4</span>, bw <span class="op">=</span> <span class="fl">30</span><span class="op">)</span>
 <span class="va">xdata</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/xcms/man/groupChromPeaks.html">groupChromPeaks</a></span><span class="op">(</span><span class="va">xdata</span>, param <span class="op">=</span> <span class="va">pdp</span><span class="op">)</span></code></pre></div>
 <p>sampleGroupsはここでは全て1のベクトルを設定したが，例えば以下<br> sample_group &lt;- c(“KO”, “KO”, “KO”, “KO”, “KO”, “KO”, “WT”, “WT”, “WT”, “WT”, “WT”, “WT”)<br> のように，群毎に設定しても良い．</p>
@@ -248,7 +249,7 @@ FAAH遺伝子欠損マウスの脊椎のメタボロームデータ(Wild type，
 ## FT004  311296.8  255216.99  132769.2  366441.5  271128.02
 ## FT005 1739516.6  872221.89  214367.8  639755.3  508546.42
 ## FT006  135905.0  143917.91  118929.2  105907.5   85332.36</code></pre>
-<p>欠損ピークの穴埋めを行った後で、それでも欠損値になっていれば0を埋める</p>
+<p>fillChromPeaks関数により欠損ピークの穴埋めを行った後で、それでも欠損値になっていれば0を埋める</p>
 </div>
 <div id="データ行列" class="section level2">
 <h2 class="hasAnchor">
@@ -256,7 +257,6 @@ FAAH遺伝子欠損マウスの脊椎のメタボロームデータ(Wild type，
 <div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">data</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/t.html">t</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/xcms/man/XCMSnExp-peak-grouping-results.html">featureValues</a></span><span class="op">(</span><span class="va">xdata</span>, value<span class="op">=</span><span class="st">"into"</span><span class="op">)</span><span class="op">)</span> <span class="co"># sample*peak</span>
 
-<span class="co"># 行名と列名は付けるほうが良い</span>
 <span class="va">data</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/NA.html">is.na</a></span><span class="op">(</span><span class="va">data</span><span class="op">)</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fl">0</span></code></pre></div>
 <p>最後に主成分分析を行ってデータを可視化する。<br></p>
 </div>
@@ -276,7 +276,7 @@ FAAH遺伝子欠損マウスの脊椎のメタボロームデータ(Wild type，
 <div id="その他" class="section level2">
 <h2 class="hasAnchor">
 <a href="#%E3%81%9D%E3%81%AE%E4%BB%96" class="anchor"></a>その他</h2>
-<p>全体を通して，xcmsではピークピッキング，クロマトグラムのアライメント，ピークの対応付けの各ステップで，複数のパラメーターを設定する必要があることがわかる．xcmsのパラメーターをチューニングするためのBioconductorパッケージとして<a href="https://bioconductor.org/packages/release/bioc/html/IPO.html">IPO</a>や<a href="https://bioconductor.org/packages/release/bioc/html/Autotuner.html">AutoTuner</a>がある． 一方で，Lassenら(<a href="https://doi.org/10.1021/acs.analchem.1c02000">https://doi.org/10.1021/acs.analchem.1c02000</a>)は，LC-MSの専門家がマニュアルで選んだパラメーターが最も良い結果であったと報告している．</p>
+<p>全体を通して，xcmsではピークピッキング，クロマトグラムのアライメント，ピークの対応付けの各ステップで，複数のパラメーターを設定する必要があることがわかる．xcmsのパラメーターをチューニングするためのBioconductorパッケージとして<a href="https://bioconductor.org/packages/release/bioc/html/IPO.html">IPO</a>や<a href="https://bioconductor.org/packages/release/bioc/html/Autotuner.html">AutoTuner</a>がある． 一方で，<a href="https://doi.org/10.1021/acs.analchem.1c02000">Lassenら</a>は，LC-MSの専門家がマニュアルで選んだパラメーターが最も良い結果であったと報告している．</p>
 </div>
   </div>
 

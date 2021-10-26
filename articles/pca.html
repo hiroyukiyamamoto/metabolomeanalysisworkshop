@@ -117,7 +117,7 @@ pre {
 <div id="主成分分析principal-component-analysis-pca" class="section level2">
 <h2 class="hasAnchor">
 <a href="#%E4%B8%BB%E6%88%90%E5%88%86%E5%88%86%E6%9E%90principal-component-analysis-pca" class="anchor"></a>主成分分析、Principal component analysis (PCA)</h2>
-loadingsパッケージを用いた主成分分析の流れについて説明する．
+<a href="https://cran.r-project.org/web/packages/loadings/index.html">loadingsパッケージ</a>を用いた主成分分析の流れについて説明する．
 <p>
 </p>
 <ul>
@@ -137,7 +137,6 @@ loadingsパッケージを用いた主成分分析の流れについて説明す
 <code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va">loadings</span><span class="op">)</span>
 
 <span class="fu"><a href="https://rdrr.io/r/utils/data.html">data</a></span><span class="op">(</span><span class="va">fasting</span><span class="op">)</span>
-
 <span class="va">X</span> <span class="op">&lt;-</span> <span class="va">fasting</span><span class="op">$</span><span class="va">X</span></code></pre></div>
 <p>主成分分析には，prcomp関数が用いられる．またここではデータをautoscaling(各代謝物毎に，平均0，分散1にする) によるスケーリングを行っている．第1主成分と第2主成分スコアをプロットしたものを以下に示す．</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
@@ -151,10 +150,8 @@ loadingsパッケージを用いた主成分分析の流れについて説明す
 <span class="va">class</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">1</span>,<span class="fl">1</span>,<span class="fl">1</span>,<span class="fl">1</span>,<span class="fl">1</span>,<span class="fl">2</span>,<span class="fl">2</span>,<span class="fl">2</span>,<span class="fl">2</span>,<span class="fl">2</span><span class="op">)</span>
 <span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html">plot</a></span><span class="op">(</span><span class="va">PC_score</span>, col<span class="op">=</span><span class="va">class</span>, pch<span class="op">=</span><span class="fl">16</span>, cex<span class="op">=</span><span class="fl">2</span><span class="op">)</span></code></pre></div>
 <p><img src="pca_files/figure-html/unnamed-chunk-2-1.png" width="480"></p>
-黒丸が通常飼育，赤丸が12時間絶食後のマウスを表している．
-<p>
-主成分分析の結果より，第1主成分で群間差が確認されたことから，第1主成分スコアと関連する代謝物を確認することで，12時間の絶食で低値もしくは高値を示す代謝物を確認することが出来る．
-</p>
+黒丸が通常飼育，赤丸が12時間絶食後のマウスを表している．<br><p>
+主成分分析の結果より，第1主成分で群間差が確認されたことから，第1主成分スコアと関連する代謝物を確認することで，12時間の絶食で低値もしくは高値を示す代謝物を確認することが出来る．<br></p>
 <p>
 </p>
 <p>次に実際に第1主成分スコアと関連する代謝物を主成分係数を用いて確認する．主成分係数の値が正または負に大きな上位10個の代謝物は次のようになる．</p>
@@ -222,9 +219,9 @@ loadingsパッケージを用いた主成分分析の流れについて説明す
 <span class="va">p</span> <span class="op">&lt;-</span> <span class="va">pca</span><span class="op">$</span><span class="va">loading</span><span class="op">$</span><span class="va">p.value</span></code></pre></div>
 <p>また主成分負荷量の統計的仮説検定により，p-valueを用いて有意な代謝物を選ぶことも出来る．[<a href="https://bmcbioinformatics.biomedcentral.com/articles/10.1186/1471-2105-15-51">Yamamoto et al., BMC Bioinformatics, (2014) 15(1):51.</a>]</p>
 </div>
-<div id="主成分負荷量を用いて代謝物の選ぶ" class="section level2">
+<div id="主成分負荷量を用いて代謝物を選ぶ" class="section level2">
 <h2 class="hasAnchor">
-<a href="#%E4%B8%BB%E6%88%90%E5%88%86%E8%B2%A0%E8%8D%B7%E9%87%8F%E3%82%92%E7%94%A8%E3%81%84%E3%81%A6%E4%BB%A3%E8%AC%9D%E7%89%A9%E3%81%AE%E9%81%B8%E3%81%B6" class="anchor"></a>主成分負荷量を用いて代謝物の選ぶ</h2>
+<a href="#%E4%B8%BB%E6%88%90%E5%88%86%E8%B2%A0%E8%8D%B7%E9%87%8F%E3%82%92%E7%94%A8%E3%81%84%E3%81%A6%E4%BB%A3%E8%AC%9D%E7%89%A9%E3%82%92%E9%81%B8%E3%81%B6" class="anchor"></a>主成分負荷量を用いて代謝物を選ぶ</h2>
 <p>実際に，第1主成分負荷量を用いて第1主成分スコアと関連する代謝物を選ぶ手順を次に示す．</p>
 <div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">PC1_loading</span> <span class="op">&lt;-</span> <span class="va">PC_loading</span><span class="op">[</span>,<span class="fl">1</span><span class="op">]</span>
@@ -275,23 +272,21 @@ loadingsパッケージを用いた主成分分析の流れについて説明す
 <span class="va">q</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/p.adjust.html">p.adjust</a></span><span class="op">(</span><span class="va">p_PC1</span>,method<span class="op">=</span><span class="st">"BH"</span><span class="op">)</span>
 <span class="fu"><a href="https://rdrr.io/r/base/sum.html">sum</a></span><span class="op">(</span><span class="va">q</span> <span class="op">&lt;</span> <span class="fl">0.05</span><span class="op">)</span></code></pre></div>
 <pre><code>## [1] 102</code></pre>
-<p>最後に，第1主成分スコアと最も相関の高い代謝物は，それぞれEthanolamine phosphateとBetonicineであり， その値はそれぞれEthanolamine phosphate(R=0.981, p=5.48×10<sup>-7,q=8.92×10</sup>-5)，Betonicine(R=-0.980, p=6.99×10<sup>-7,q=8.92×10</sup>-5)であった．</p>
+<p>最後に，第1主成分スコアと最も相関の高い代謝物は，それぞれEthanolamine phosphateとBetonicineであり， その値はそれぞれEthanolamine phosphate(R=0.981, p=5.48×10^-7, q=8.92×10^-5)，Betonicine(R=-0.980, p=6.99×10^-7, q=8.92×10^-5)であった．</p>
 <div class="sourceCode" id="cb22"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="co"># PC1 score</span>
-<span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html">plot</a></span><span class="op">(</span><span class="va">PC_score</span><span class="op">[</span>,<span class="fl">1</span><span class="op">]</span>, col<span class="op">=</span><span class="va">class</span>, pch<span class="op">=</span><span class="fl">16</span>, cex<span class="op">=</span><span class="fl">2</span><span class="op">)</span></code></pre></div>
-<p><img src="pca_files/figure-html/unnamed-chunk-9-1.png" width="480"></p>
-<div class="sourceCode" id="cb23"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="co"># Ethanolamine phosphate (top 1 positively correlated metabolite with PC1 score)</span>
 <span class="fu"><a href="https://rdrr.io/r/graphics/par.html">par</a></span><span class="op">(</span>mfrow<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">1</span>,<span class="fl">2</span><span class="op">)</span><span class="op">)</span>
 <span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html">plot</a></span><span class="op">(</span><span class="va">PC_score</span><span class="op">[</span>,<span class="fl">1</span><span class="op">]</span>, col<span class="op">=</span><span class="va">class</span>, pch<span class="op">=</span><span class="fl">16</span>, cex<span class="op">=</span><span class="fl">2</span>, xlab<span class="op">=</span><span class="st">"Sample"</span>, ylab<span class="op">=</span><span class="st">"PC1"</span><span class="op">)</span>
 <span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html">plot</a></span><span class="op">(</span><span class="va">X</span><span class="op">[</span>,<span class="fu"><a href="https://rdrr.io/r/base/order.html">order</a></span><span class="op">(</span><span class="va">PC1_loading</span>, decreasing<span class="op">=</span><span class="cn">TRUE</span><span class="op">)</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span>,col<span class="op">=</span><span class="va">class</span>, pch<span class="op">=</span><span class="fl">16</span>, cex<span class="op">=</span><span class="fl">2</span>, xlab <span class="op">=</span><span class="st">"Sample"</span>, ylab<span class="op">=</span><span class="st">"Ethanolamine phosphate"</span><span class="op">)</span></code></pre></div>
-<p><img src="pca_files/figure-html/unnamed-chunk-10-1.png" width="960"></p>
-<div class="sourceCode" id="cb24"><pre class="downlit sourceCode r">
+<p><img src="pca_files/figure-html/unnamed-chunk-9-1.png" width="960"></p>
+<p>上図の左が第1主成分スコア，右がEthanolamine phosphateである．主成分負荷量(相関係数)の値が0.981と非常に高い値を示すことから分かるように，非常に良く似た傾向を示すことが確認できる．</p>
+<div class="sourceCode" id="cb23"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="co"># Betonicine (top 1 negatively correlated metabolite with PC1 score)</span>
 <span class="fu"><a href="https://rdrr.io/r/graphics/par.html">par</a></span><span class="op">(</span>mfrow<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">1</span>,<span class="fl">2</span><span class="op">)</span><span class="op">)</span>
 <span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html">plot</a></span><span class="op">(</span><span class="va">PC_score</span><span class="op">[</span>,<span class="fl">1</span><span class="op">]</span>, col<span class="op">=</span><span class="va">class</span>, pch<span class="op">=</span><span class="fl">16</span>, cex<span class="op">=</span><span class="fl">2</span>, xlab<span class="op">=</span><span class="st">"Sample"</span>, ylab<span class="op">=</span><span class="st">"PC1"</span><span class="op">)</span>
 <span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html">plot</a></span><span class="op">(</span><span class="va">X</span><span class="op">[</span>,<span class="fu"><a href="https://rdrr.io/r/base/order.html">order</a></span><span class="op">(</span><span class="va">PC1_loading</span>, decreasing<span class="op">=</span><span class="cn">FALSE</span><span class="op">)</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span>,col<span class="op">=</span><span class="va">class</span>, pch<span class="op">=</span><span class="fl">16</span>, cex<span class="op">=</span><span class="fl">2</span>,xlab <span class="op">=</span><span class="st">"Sample"</span>, ylab<span class="op">=</span><span class="st">"Betonicine"</span><span class="op">)</span></code></pre></div>
-<p><img src="pca_files/figure-html/unnamed-chunk-10-2.png" width="960"></p>
+<p><img src="pca_files/figure-html/unnamed-chunk-10-1.png" width="960"></p>
+<p>上図の左が第1主成分スコア，右がBetonicineである．こちらは主成分負荷量(相関係数)の値が-0.980であり負に非常に高い値を示すことから，逆の傾向を示すことが確認できる．</p>
 </div>
   </div>
 
