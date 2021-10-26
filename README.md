@@ -13,11 +13,10 @@ I will briefly introduce the procedure for mass spectrometry data processing in 
 
 ## タイムスケジュール
 
-- 全体の説明 (<a href="https://github.com/hiroyukiyamamoto/metabolomeanalysisworkshop/blob/master/vignettes/%E7%99%BA%E8%A1%A8%E8%B3%87%E6%96%99.pdf">発表資料</a>) (20分)
-- <a href="https://bioconductor.org/packages/release/bioc/html/xcms.html">xcms</a>による質量分析データ処理(10分)
-- <a href="https://cran.r-project.org/web/packages/loadings/index.html">loadings</a>パッケージによる主成分分析と主成分負荷量を用いた代謝物の選び方(10分)
-- <a href="https://cran.r-project.org/web/packages/loadings/index.html">loadings</a>パッケージによるPartial least squares(PLS)とPLS負荷量を用いた代謝物の選び方(10分)
-- 質疑応答、その他(10分)
+- 全体の説明 (<a href="https://github.com/hiroyukiyamamoto/metabolomeanalysisworkshop/blob/master/vignettes/%E7%99%BA%E8%A1%A8%E8%B3%87%E6%96%99.pdf">発表資料</a>) (15分)
+- <a href="https://bioconductor.org/packages/release/bioc/html/xcms.html">xcms</a>による質量分析データ処理(15分)
+- <a href="https://cran.r-project.org/web/packages/loadings/index.html">loadings</a>パッケージによる主成分分析と主成分負荷量を用いた代謝物の選び方(15分)
+- <a href="https://cran.r-project.org/web/packages/loadings/index.html">loadings</a>パッケージによるPartial least squares(PLS)とPLS負荷量を用いた代謝物の選び方(15分)
 
 ## 資料
 
