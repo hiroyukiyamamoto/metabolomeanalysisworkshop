@@ -76,8 +76,9 @@ plot(PC_score, col=class, pch=16, cex=2, xlab="PC1", ylab="PC2", main="PCA Score
 
 # PLS
 pls <- pls_svd(X,Y)
+# pls <- pls_eigen(X,Y,2) # chemometricsパッケージのpls_eigen関数の場合
 
-# explanatory variable
+# PLSスコア
 PLS_score <- pls$T[,c(1,2)] # First and second PLS
 
 class <- c(1,1,1,2,2,2,3,3,3)
@@ -238,7 +239,7 @@ plot(X[,order(PLS1_loading, decreasing=FALSE)[1]], col=class, pch=16, cex=2, xla
 
 ## Partial least squares rank order of groups (PLS-ROG)を用いた解析
 
-ここまでPLSを用いて解析を行って来た．PLSでは，Wild typeと高脂血症群の違いは確認出来たが，高脂血症ウサギに薬剤を投与した時の影響については，明確には確認出来なかった．
+PLSでは，Wild typeと高脂血症群の違いは確認出来たが，高脂血症ウサギに薬剤を投与した時の影響については，明確には確認出来なかった．
 <P>
 そこで群に順序があるデータに適したPLS-ROG[<a href="https://analyticalsciencejournals.onlinelibrary.wiley.com/doi/10.1002/cem.2883">Yamamoto, H. PLS-ROG: Partial least squares with rank order of groups.J.Chemom. 2017, 31, e2883.</a>]を用いて解析を行った結果を次に示す．
 
@@ -292,7 +293,7 @@ boxplot(PLSROG_score_Y[,1]~class, ylab="PLS-ROG1", main="PLS-ROG(Y) Score")
 
 ```
 
-## PLS-ROG loadings
+## PLS-ROG負荷量を用いて代謝物を選ぶ
 <P>
 PLS-ROG負荷量は，PLS負荷量と同じく「目的変数のスコアと各代謝物レベルの相関係数」として定義され，
 相関係数の値そのものや，統計的仮説検定を用いて有意な代謝物を選ぶことが出来る．

@@ -81,7 +81,7 @@ tic <- chromatogram(xdata, aggregationFun="sum")
 plot(tic,xlim=c(2760,2820), peakType="none")
 ```
 
-そこで，クロマトグラムの保持時間の補正をObiwarp法を用いて行った結果を次に示す．
+そこで，クロマトグラムの保持時間をObiwarp法を用いて補正した結果を次に示す．
 
 ```{r}
 xdata <- adjustRtime(xdata, param = ObiwarpParam(binSize = 0.6))
@@ -90,19 +90,19 @@ tic <- chromatogram(xdata, aggregationFun="sum")
 plot(tic,xlim=c(2760,2820), peakType="none")
 ```
 
-この結果より，補正前に比べてサンプル間の保持時間のズレが小さくなっていることが確認できる．
+この結果より，補正前に比べてサンプル間の保持時間のズレが小さくなっていることが確認できる．<BR>
+<P>
 クロマトグラムのアライメントのパラメーターの値は，ピークピッキングと同様にXCMSのドキュメントに記載されたものを
-そのまま利用しているが，クロマトグラムの保持時間のズレ方は分析法によって異なることから，実際は試行錯誤で決める必要がある．
+そのまま利用しているが，クロマトグラムの保持時間のズレ方は分析法によって異なることから，実際は試行錯誤により決める必要がある．
 
 ## ピークの対応付け
 次に，それぞれのサンプル間でのピークを対応付けをgroupChromPeaks関数を用いて行う．
-PeakDensityParamはこれまでと同様に，パラメーターを変えながら試行錯誤で決める必要がある．
+PeakDensityParamはこれまでと同様に，パラメーターを変えながら試行錯誤により決める必要がある．
 
 ```{r}
 ## Group Peaks
 sample_group <- c(1,1,1,1,1,1,1,1,1,1,1,1)
 
-#sample_group <- cdfs
 pdp <- PeakDensityParam(sampleGroups = sample_group, minFraction = 0.4, bw = 30)
 xdata <- groupChromPeaks(xdata, param = pdp)
 ```
@@ -125,13 +125,12 @@ xdata <- fillChromPeaks(xdata, param = ChromPeakAreaParam())
 head(featureValues(xdata))
 ```
 
-欠損ピークの穴埋めを行った後で、それでも欠損値になっていれば0を埋める
+fillChromPeaks関数により欠損ピークの穴埋めを行った後で、それでも欠損値になっていれば0を埋める
 
 ## データ行列
 ```{r}
 data <- t(featureValues(xdata, value="into")) # sample*peak
 
-# 行名と列名は付けるほうが良い
 data[is.na(data)] <- 0
 ```
 
@@ -152,4 +151,4 @@ plot(pca$x[,3:4], col=class, pch=16, cex=1.5) # PC3 vs PC4
 
 ## その他
 全体を通して，xcmsではピークピッキング，クロマトグラムのアライメント，ピークの対応付けの各ステップで，複数のパラメーターを設定する必要があることがわかる．xcmsのパラメーターをチューニングするためのBioconductorパッケージとして<a  href="https://bioconductor.org/packages/release/bioc/html/IPO.html">IPO</a>や<a  href="https://bioconductor.org/packages/release/bioc/html/Autotuner.html">AutoTuner</a>がある．
-一方で，Lassenら(<a  href="https://doi.org/10.1021/acs.analchem.1c02000">https://doi.org/10.1021/acs.analchem.1c02000</a>)は，LC-MSの専門家がマニュアルで選んだパラメーターが最も良い結果であったと報告している．
+一方で，<a  href="https://doi.org/10.1021/acs.analchem.1c02000">Lassenら</a>は，LC-MSの専門家がマニュアルで選んだパラメーターが最も良い結果であったと報告している．
