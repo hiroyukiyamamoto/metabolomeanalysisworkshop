@@ -1,51 +1,29 @@
-# BuildABiocWorkshop
+# Rを用いたメタボロームデータ解析: Metabolome data analysis using R
 
-This package is a template for building a Bioconductor workshop. The package
-includes Github actions to:
+## 要旨
 
-1. Set up bioconductor/bioconductor_docker:devel on Github resources
-2. Install package dependencies for your package (based on the `DESCRIPTION` file)
-3. Run `rcmdcheck::rcmdcheck`
-4. Build a pkgdown website and push it to github pages
-5. Build a docker image with the installed package and dependencies
+BioconductorパッケージXCMSを用いた、メタボロミクスにおける質量分析データ処理の手順を簡単に紹介する。次に、Rパッケージloadingsを用いた多変量解析の手順を紹介する。loadingsパッケージは、メタボロームデータを可視化するだけでなく、主成分負荷量やPartial last squares 負荷量とそれらの統計的仮説検定を用いて、有意な代謝物を選択することが出来る。
 
-## Responsibilities
+I will briefly introduce the procedure for mass spectrometry data processing in metabolomics using the R Bioconductor package “XCMS”. And, I will also introduce the procedure for multivariate analysis using R package “loadings”. The “loadings” package can not only visualize metabolome data, but also select significant metabolites using Principal component loadings, Partial least squares loadings and their statistical hypothesis testing.
 
-This year, package authors will be primarily responsible for:
+## 使用するR/Bioconductorパッケージ
 
-1. Creating a landing site of their choosing for their workshops (a website). This website should be listed in the `DESCRIPTION` file as the `URL`.
-2. Creating a docker account and image that will contain workshop materials and the installed packages necessary to run those materials. The name of the resulting docker image, including "tag" if desired, should be listed in a non-standard tag, `DockerImage:` in the `DESCRIPTION` file. 
+- 質量分析データ処理：<a href="https://bioconductor.org/packages/release/bioc/html/xcms.html">xcms</a> (Bioconductor)
+- 多変量解析(PCAとPLS)：<a href="https://cran.r-project.org/web/packages/loadings/index.html">loadings</a> (CRAN)
 
-Both of those tasks can be accomplished using the Github actions included in this template package. The vignette accompanying this package describes how to accomplish both of these tasks.
+## タイムスケジュール
 
-## Details
+- 全体の説明 (<a href="https://github.com/hiroyukiyamamoto/metabolomeanalysisworkshop/blob/master/vignettes/%E7%99%BA%E8%A1%A8%E8%B3%87%E6%96%99.pdf">発表資料</a>) (20分)
+- <a href="https://bioconductor.org/packages/release/bioc/html/xcms.html">xcms</a>による質量分析データ処理(10分)
+- <a href="https://cran.r-project.org/web/packages/loadings/index.html">loadings</a>パッケージによる主成分分析と主成分負荷量を用いた代謝物の選び方(10分)
+- <a href="https://cran.r-project.org/web/packages/loadings/index.html">loadings</a>パッケージによるPartial least squares(PLS)とPLS負荷量を用いた代謝物の選び方(10分)
+- 質疑応答、その他(10分)
 
-For detailed instructions, see the `How to build a workshop` article/vignette.
+## 資料
 
-## Results of successful deployment
+- <a href="https://hiroyukiyamamoto.github.io/metabolomeanalysisworkshop">Webサイト</a>
+- <a href="https://github.com/hiroyukiyamamoto/metabolomeanalysisworkshop/blob/master/vignettes/%E7%99%BA%E8%A1%A8%E8%B3%87%E6%96%99.pdf">発表資料(pdfファイル)</a>
 
-- A working docker image that contains the installed package and dependencies.
-- An up-to-date `pkgdown` website at https://YOURUSERNAME.github.io/YOURREPOSITORYNAME/
-- Docker image will be tagged with `latest`, `sha-XXXXXX` where `XXXXXX` is the hash of the current `master` commit, and `master`. 
+## 連絡先
 
-## To use the resulting image:
-
-```sh
-docker run -e PASSWORD=<choose_a_password_for_rstudio> -p 8787:8787 YOURDOCKERIMAGENAME
-```
-Once running, navigate to https://localhost:8787/ and then login with `rstudio`:`yourchosenpassword`. 
-
-To try with **this** repository docker image:
-
-```sh
-docker run -e PASSWORD=abc -p 8787:8787 hyama/metabolomeanalysisworkshop
-```
-
-*NOTE*: Running docker that uses the password in plain text like above exposes the password to others 
-in a multi-user system (like a shared workstation or compute node). In practice, consider using an environment 
-variable instead of plain text to pass along passwords and other secrets in docker command lines. 
-
-
-## Whatcha get
-
-https://hiroyukiyamamoto.github.io/metabolomeanalysisworkshop
+- 山本博之 h.yama2396@gmail.com
