@@ -87,56 +87,52 @@
 
       </header><div class="row">
   <div class="contents col-md-9">
-<div id="buildabiocworkshop" class="section level1">
+<div id="rを用いたメタボロームデータ解析-metabolome-data-analysis-using-r" class="section level1">
 <div class="page-header"><h1 class="hasAnchor">
-<a href="#buildabiocworkshop" class="anchor"></a>BuildABiocWorkshop</h1></div>
-<p>This package is a template for building a Bioconductor workshop. The package includes Github actions to:</p>
-<ol>
-<li>Set up bioconductor/bioconductor_docker:devel on Github resources</li>
-<li>Install package dependencies for your package (based on the <code>DESCRIPTION</code> file)</li>
-<li>Run <code><a href="http://r-lib.github.io/rcmdcheck/reference/rcmdcheck.html">rcmdcheck::rcmdcheck</a></code>
-</li>
-<li>Build a pkgdown website and push it to github pages</li>
-<li>Build a docker image with the installed package and dependencies</li>
-</ol>
-<div id="responsibilities" class="section level2">
+<a href="#r%E3%82%92%E7%94%A8%E3%81%84%E3%81%9F%E3%83%A1%E3%82%BF%E3%83%9C%E3%83%AD%E3%83%BC%E3%83%A0%E3%83%87%E3%83%BC%E3%82%BF%E8%A7%A3%E6%9E%90-metabolome-data-analysis-using-r" class="anchor"></a>Rを用いたメタボロームデータ解析: Metabolome data analysis using R</h1></div>
+<div id="要旨" class="section level2">
 <h2 class="hasAnchor">
-<a href="#responsibilities" class="anchor"></a>Responsibilities</h2>
-<p>This year, package authors will be primarily responsible for:</p>
-<ol>
-<li>Creating a landing site of their choosing for their workshops (a website). This website should be listed in the <code>DESCRIPTION</code> file as the <code>URL</code>.</li>
-<li>Creating a docker account and image that will contain workshop materials and the installed packages necessary to run those materials. The name of the resulting docker image, including “tag” if desired, should be listed in a non-standard tag, <code>DockerImage:</code> in the <code>DESCRIPTION</code> file.</li>
-</ol>
-<p>Both of those tasks can be accomplished using the Github actions included in this template package. The vignette accompanying this package describes how to accomplish both of these tasks.</p>
+<a href="#%E8%A6%81%E6%97%A8" class="anchor"></a>要旨</h2>
+<p>BioconductorパッケージXCMSを用いた、メタボロミクスにおける質量分析データ処理の手順を簡単に紹介する。次に、Rパッケージloadingsを用いた多変量解析の手順を紹介する。loadingsパッケージは、メタボロームデータを可視化するだけでなく、主成分負荷量やPartial last squares 負荷量とそれらの統計的仮説検定を用いて、有意な代謝物を選択することが出来る。</p>
+<p>I will briefly introduce the procedure for mass spectrometry data processing in metabolomics using the R Bioconductor package “XCMS”. And, I will also introduce the procedure for multivariate analysis using R package “loadings”. The “loadings” package can not only visualize metabolome data, but also select significant metabolites using Principal component loadings, Partial least squares loadings and their statistical hypothesis testing.</p>
 </div>
-<div id="details" class="section level2">
+<div id="使用するrbioconductorパッケージ" class="section level2">
 <h2 class="hasAnchor">
-<a href="#details" class="anchor"></a>Details</h2>
-<p>For detailed instructions, see the <code>How to build a workshop</code> article/vignette.</p>
-</div>
-<div id="results-of-successful-deployment" class="section level2">
-<h2 class="hasAnchor">
-<a href="#results-of-successful-deployment" class="anchor"></a>Results of successful deployment</h2>
+<a href="#%E4%BD%BF%E7%94%A8%E3%81%99%E3%82%8Brbioconductor%E3%83%91%E3%83%83%E3%82%B1%E3%83%BC%E3%82%B8" class="anchor"></a>使用するR/Bioconductorパッケージ</h2>
 <ul>
-<li>A working docker image that contains the installed package and dependencies.</li>
-<li>An up-to-date <code>pkgdown</code> website at <a href="https://YOURUSERNAME.github.io/YOURREPOSITORYNAME/" class="uri">https://YOURUSERNAME.github.io/YOURREPOSITORYNAME/</a>
-</li>
-<li>Docker image will be tagged with <code>latest</code>, <code>sha-XXXXXX</code> where <code>XXXXXX</code> is the hash of the current <code>master</code> commit, and <code>master</code>.</li>
+<li>質量分析データ処理：<a href="https://bioconductor.org/packages/release/bioc/html/xcms.html">xcms</a> (Bioconductor)</li>
+<li>多変量解析(PCAとPLS)：<a href="https://cran.r-project.org/web/packages/loadings/index.html">loadings</a> (CRAN)</li>
 </ul>
 </div>
-<div id="to-use-the-resulting-image" class="section level2">
+<div id="タイムスケジュール" class="section level2">
 <h2 class="hasAnchor">
-<a href="#to-use-the-resulting-image" class="anchor"></a>To use the resulting image:</h2>
-<div class="sourceCode" id="cb1"><pre class="sourceCode sh"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="ex">docker</span> run <span class="at">-e</span> PASSWORD=<span class="op">&lt;</span>choose_a_password_for_rstudio<span class="op">&gt;</span> -p 8787:8787 YOURDOCKERIMAGENAME</span></code></pre></div>
-<p>Once running, navigate to <a href="https://localhost:8787/" class="uri">https://localhost:8787/</a> and then login with <code>rstudio</code>:<code>yourchosenpassword</code>.</p>
-<p>To try with <strong>this</strong> repository docker image:</p>
-<div class="sourceCode" id="cb2"><pre class="sourceCode sh"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="ex">docker</span> run <span class="at">-e</span> PASSWORD=abc <span class="at">-p</span> 8787:8787 hyama/metabolomeanalysisworkshop</span></code></pre></div>
-<p><em>NOTE</em>: Running docker that uses the password in plain text like above exposes the password to others in a multi-user system (like a shared workstation or compute node). In practice, consider using an environment variable instead of plain text to pass along passwords and other secrets in docker command lines.</p>
+<a href="#%E3%82%BF%E3%82%A4%E3%83%A0%E3%82%B9%E3%82%B1%E3%82%B8%E3%83%A5%E3%83%BC%E3%83%AB" class="anchor"></a>タイムスケジュール</h2>
+<ul>
+<li>全体の説明 (<a href="https://github.com/hiroyukiyamamoto/metabolomeanalysisworkshop/blob/master/vignettes/%E7%99%BA%E8%A1%A8%E8%B3%87%E6%96%99.pdf">発表資料</a>) (20分)</li>
+<li>
+<a href="https://bioconductor.org/packages/release/bioc/html/xcms.html">xcms</a>による質量分析データ処理(10分)</li>
+<li>
+<a href="https://cran.r-project.org/web/packages/loadings/index.html">loadings</a>パッケージによる主成分分析と主成分負荷量を用いた代謝物の選び方(10分)</li>
+<li>
+<a href="https://cran.r-project.org/web/packages/loadings/index.html">loadings</a>パッケージによるPartial least squares(PLS)とPLS負荷量を用いた代謝物の選び方(10分)</li>
+<li>質疑応答、その他(10分)</li>
+</ul>
 </div>
-<div id="whatcha-get" class="section level2">
+<div id="資料" class="section level2">
 <h2 class="hasAnchor">
-<a href="#whatcha-get" class="anchor"></a>Whatcha get</h2>
-<p><a href="https://hiroyukiyamamoto.github.io/metabolomeanalysisworkshop" class="uri">https://hiroyukiyamamoto.github.io/metabolomeanalysisworkshop</a></p>
+<a href="#%E8%B3%87%E6%96%99" class="anchor"></a>資料</h2>
+<ul>
+<li><a href="https://hiroyukiyamamoto.github.io/metabolomeanalysisworkshop">Webサイト</a></li>
+<li><a href="https://github.com/hiroyukiyamamoto/metabolomeanalysisworkshop/blob/master/vignettes/%E7%99%BA%E8%A1%A8%E8%B3%87%E6%96%99.pdf">発表資料(pdfファイル)</a></li>
+</ul>
+</div>
+<div id="連絡先" class="section level2">
+<h2 class="hasAnchor">
+<a href="#%E9%80%A3%E7%B5%A1%E5%85%88" class="anchor"></a>連絡先</h2>
+<ul>
+<li>山本博之 <a href="mailto:h.yama2396@gmail.com" class="email">h.yama2396@gmail.com</a>
+</li>
+</ul>
 </div>
 </div>
   </div>
