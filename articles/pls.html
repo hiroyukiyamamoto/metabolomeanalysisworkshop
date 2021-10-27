@@ -121,14 +121,14 @@ pre {
 <li>データの説明
 <ul>
 <li>loadingsパッケージのデモデータwhhlを利用する</li>
-<li>Wildtype，高脂血症ウサギ，高脂血症ウサギに薬剤を投与した3群の肝臓のメタボロームデータ</li>
+<li>Wildtype，高脂血症ウサギ，高脂血症ウサギに薬剤を投与した3群の肝臓のメタボロームデータ(各群n=3)</li>
 </ul>
 </li>
 </ul>
 <div id="ライブラリとデータの読み込み" class="section level2">
 <h2 class="hasAnchor">
 <a href="#%E3%83%A9%E3%82%A4%E3%83%96%E3%83%A9%E3%83%AA%E3%81%A8%E3%83%87%E3%83%BC%E3%82%BF%E3%81%AE%E8%AA%AD%E3%81%BF%E8%BE%BC%E3%81%BF" class="anchor"></a>ライブラリとデータの読み込み</h2>
-<p>whhlの変数Xにメタボロームデータ，変数Yに群情報のダミー変数行列が含まれている．</p>
+<p>はじめに，loadingsパッケージのデモデータwhhlを読み込む．実際の解析の場合は，csvファイルをread.csv関数などでデータを読み込んで利用する．</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va">loadings</span><span class="op">)</span>
 
@@ -151,6 +151,7 @@ pre {
 ## attr(,"contrasts")
 ## attr(,"contrasts")$Y0
 ## [1] "contr.treatment"</code></pre>
+<p>whhlの変数Xに, 各行にサンプル，各変数に代謝物のメタボロームデータ，変数Yに群情報のダミー変数が含まれている．</p>
 </div>
 <div id="主成分分析" class="section level2">
 <h2 class="hasAnchor">
@@ -164,37 +165,35 @@ pre {
 <span class="va">class</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">1</span>,<span class="fl">1</span>,<span class="fl">1</span>,<span class="fl">2</span>,<span class="fl">2</span>,<span class="fl">2</span>,<span class="fl">3</span>,<span class="fl">3</span>,<span class="fl">3</span><span class="op">)</span>
 <span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html">plot</a></span><span class="op">(</span><span class="va">PC_score</span>, col<span class="op">=</span><span class="va">class</span>, pch<span class="op">=</span><span class="fl">16</span>, cex<span class="op">=</span><span class="fl">2</span>, xlab<span class="op">=</span><span class="st">"PC1"</span>, ylab<span class="op">=</span><span class="st">"PC2"</span>, main<span class="op">=</span><span class="st">"PCA Score"</span><span class="op">)</span></code></pre></div>
 <p><img src="pls_files/figure-html/unnamed-chunk-2-1.png" width="480"></p>
-<p>黒丸がWild type，赤丸が高脂血症ウサギ，緑丸が高脂血症ウサギに薬剤を投与した群である．<br> 主成分分析の結果，第1主成分と第2主成分スコアには明確な群間差を確認することが出来なかった． <br></p>
+<p>黒丸がWild type，赤丸が高脂血症ウサギ，緑丸が高脂血症ウサギに薬剤を投与した群である．<br> 主成分分析の結果，第1主成分と第2主成分スコアで群間差を確認することは出来なかった． <br></p>
 </div>
 <div id="partial-least-squares-pls" class="section level2">
 <h2 class="hasAnchor">
 <a href="#partial-least-squares-pls" class="anchor"></a>Partial least squares (PLS)</h2>
-<p>主成分分析では明確な群間差が確認できなかったことから，PLSを用いて解析を行った．</p>
+<p>主成分分析では明確な群間差が確認できなかったことから，PLSを用いて解析を行った．PLSはloadingsパッケージのpls_svd関数を利用する．その他にも，chemometricsパッケージのpls_eigen関数も利用することが出来る．</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="co"># PLS</span>
-<span class="va">pls</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/loadings/man/pls_svd.html">pls_svd</a></span><span class="op">(</span><span class="va">X</span>,<span class="va">Y</span><span class="op">)</span>
+<code class="sourceCode R"><span class="va">pls</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/loadings/man/pls_svd.html">pls_svd</a></span><span class="op">(</span><span class="va">X</span>,<span class="va">Y</span><span class="op">)</span>
 <span class="co"># pls &lt;- pls_eigen(X,Y,2) # chemometricsパッケージのpls_eigen関数の場合</span>
 
-<span class="co"># PLSスコア</span>
-<span class="va">PLS_score</span> <span class="op">&lt;-</span> <span class="va">pls</span><span class="op">$</span><span class="cn">T</span><span class="op">[</span>,<span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">1</span>,<span class="fl">2</span><span class="op">)</span><span class="op">]</span> <span class="co"># First and second PLS</span>
-
-<span class="va">class</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">1</span>,<span class="fl">1</span>,<span class="fl">1</span>,<span class="fl">2</span>,<span class="fl">2</span>,<span class="fl">2</span>,<span class="fl">3</span>,<span class="fl">3</span>,<span class="fl">3</span><span class="op">)</span>
+<span class="va">PLS_score</span> <span class="op">&lt;-</span> <span class="va">pls</span><span class="op">$</span><span class="cn">T</span><span class="op">[</span>,<span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">1</span>,<span class="fl">2</span><span class="op">)</span><span class="op">]</span> <span class="co"># First and second PLS score</span>
 
 <span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html">plot</a></span><span class="op">(</span><span class="va">PLS_score</span>, col<span class="op">=</span><span class="va">class</span>, pch<span class="op">=</span><span class="fl">16</span>, cex<span class="op">=</span><span class="fl">2</span>, xlab<span class="op">=</span><span class="st">"PLS1"</span>, ylab<span class="op">=</span><span class="st">"PLS2"</span>, main<span class="op">=</span><span class="st">"PLS Score"</span><span class="op">)</span></code></pre></div>
 <p><img src="pls_files/figure-html/unnamed-chunk-3-1.png" width="480"></p>
-<p>横軸の第1PLSスコアで，Wild typeと高脂血症ウサギの違いが確認されたことから， 第1PLSスコアと関連する代謝物を知るために，第1PLS係数が大きな上位10物質に着目する．</p>
+<p>横軸の第1PLSスコアで，Wild typeと高脂血症ウサギの違いが確認されたことから， 第1PLSスコアと関連する代謝物を確認することで，高脂血症ウサギで低値もしくは高値を示す代謝物を確認することが出来る．</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">metabolite_name</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/colnames.html">colnames</a></span><span class="op">(</span><span class="va">whhl</span><span class="op">$</span><span class="va">X</span><span class="op">)</span>
   
-<span class="co"># weight / PLS coeficient / eigenvector</span>
-<span class="va">PLS_weight</span> <span class="op">&lt;-</span> <span class="va">pls</span><span class="op">$</span><span class="va">P</span>
-
+<span class="va">PLS_weight</span> <span class="op">&lt;-</span> <span class="va">pls</span><span class="op">$</span><span class="va">P</span> <span class="co"># weight / PLS coeficient / eigenvector</span>
 <span class="fu"><a href="https://rdrr.io/r/base/colnames.html">rownames</a></span><span class="op">(</span><span class="va">PLS_weight</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="va">metabolite_name</span>
-
-<span class="co"># PLS1 weight</span>
-<span class="va">PLS1_weight</span> <span class="op">&lt;-</span> <span class="va">PLS_weight</span><span class="op">[</span>,<span class="fl">1</span><span class="op">]</span> 
-
-<span class="co"># top 10 metabolites (positively correlated)</span>
+<span class="va">PLS1_weight</span> <span class="op">&lt;-</span> <span class="va">PLS_weight</span><span class="op">[</span>,<span class="fl">1</span><span class="op">]</span> <span class="co"># PLS1 weight</span></code></pre></div>
+loadingsパッケージのpls_svd関数もしくはchemometricsパッケージのpls_eigenの結果(ここではpls)に含まれる変数Pが，PLS係数(重み，固有ベクトル)である．
+<p>
+</p>
+<p>
+</p>
+<p>実際に，第1PLSスコアと関連する代謝物をPLS係数を用いて確認する．PLS係数の値が正または負に大きな上位10個の代謝物は次のようになる．</p>
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="co"># top 10 metabolites (positively correlated)</span>
 <span class="va">PLS1_weight</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/order.html">order</a></span><span class="op">(</span><span class="va">PLS1_weight</span>, decreasing<span class="op">=</span><span class="cn">TRUE</span><span class="op">)</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">10</span><span class="op">]</span><span class="op">]</span></code></pre></div>
 <pre><code>## 3-Hydroxy-3-methylglutaric acid             N,N-Dimethylglycine 
 ##                      0.14163571                      0.13990688 
@@ -206,7 +205,7 @@ pre {
 ##                      0.09593265                      0.09199997 
 ##                      Creatinine                    5-Oxoproline 
 ##                      0.09033436                      0.08364500</code></pre>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="co"># top 10 metabolites (negatively correlated)</span>
 <span class="va">PLS1_weight</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/order.html">order</a></span><span class="op">(</span><span class="va">PLS1_weight</span>, decreasing<span class="op">=</span><span class="cn">FALSE</span><span class="op">)</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">10</span><span class="op">]</span><span class="op">]</span></code></pre></div>
 <pre><code>##                      NADH              Hypoxanthine Pyridoxamine 5'-phosphate 
@@ -217,68 +216,79 @@ pre {
 ##                -0.1413775                -0.1399634                -0.1377205 
 ##                  Cytosine 
 ##                -0.1336458</code></pre>
+<p>主成分分析における主成分係数と同様に，PLS係数の値の大きさがどの程度であれば強く関連する代謝物と言えるのか，判断することが難しい．</p>
 </div>
 <div id="pls係数とpls負荷量の関係について" class="section level2">
 <h2 class="hasAnchor">
 <a href="#pls%E4%BF%82%E6%95%B0%E3%81%A8pls%E8%B2%A0%E8%8D%B7%E9%87%8F%E3%81%AE%E9%96%A2%E4%BF%82%E3%81%AB%E3%81%A4%E3%81%84%E3%81%A6" class="anchor"></a>PLS係数とPLS負荷量の関係について</h2>
-<p>ここで，PLS係数とPLS負荷量の関係について確認する．<br> 主成分分析では，主成分係数は「主成分スコアと各代謝物との相関係数」に比例していた．<br> そこで，PLS係数と，「PLSスコアと各代謝物の相関係数」の確認する．</p>
-<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="co">## explain of PLS coefficient</span>
-<span class="co"># correlation with PLS score of explanatory variables</span>
+主成分分析において主成分係数の代わりに主成分負荷量を用いて代謝物を選んだのと同様に，PLS係数の代わりにPLS負荷量を利用することを考える．
+<p>
+</p>
+<p>
+</p>
+<p>まずはじめにPLS係数とPLS負荷量の関係について確認する． 主成分分析では，主成分係数は「主成分スコアと各代謝物との相関係数」に比例していたので， まずはじめにPLS係数と，「PLSスコアと各代謝物の相関係数」の関係を確認した結果を以下に示す．</p>
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="co"># correlation with PLS score of explanatory variables</span>
 <span class="va">R</span> <span class="op">&lt;-</span> <span class="cn">NULL</span>
 <span class="kw">for</span><span class="op">(</span><span class="va">i</span> <span class="kw">in</span> <span class="fl">1</span><span class="op">:</span><span class="fu"><a href="https://rdrr.io/r/base/nrow.html">ncol</a></span><span class="op">(</span><span class="va">X</span><span class="op">)</span><span class="op">)</span><span class="op">{</span>
   <span class="va">R</span><span class="op">[</span><span class="va">i</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/cor.test.html">cor.test</a></span><span class="op">(</span><span class="va">PLS_score</span><span class="op">[</span>,<span class="fl">1</span><span class="op">]</span>,<span class="va">X</span><span class="op">[</span>,<span class="va">i</span><span class="op">]</span><span class="op">)</span><span class="op">$</span><span class="va">estimate</span>
 <span class="op">}</span>
 
-<span class="co"># PLS weight is not proportional with PLS score of explanatory variable</span>
 <span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html">plot</a></span><span class="op">(</span><span class="va">PLS1_weight</span>, <span class="va">R</span><span class="op">)</span></code></pre></div>
-<p><img src="pls_files/figure-html/unnamed-chunk-5-1.png" width="480"></p>
-<p>この結果より，主成分分析における主成分係数とは異なり，PLS係数は「PLSスコアと各代謝物の相関係数」には<b>比例しない</b>ことが確認できる。 <br></p>
-</div>
-<div id="pls負荷量を用いて代謝物を選ぶ" class="section level2">
-<h2 class="hasAnchor">
-<a href="#pls%E8%B2%A0%E8%8D%B7%E9%87%8F%E3%82%92%E7%94%A8%E3%81%84%E3%81%A6%E4%BB%A3%E8%AC%9D%E7%89%A9%E3%82%92%E9%81%B8%E3%81%B6" class="anchor"></a>PLS負荷量を用いて代謝物を選ぶ</h2>
-<p>次にPLS負荷量について確認するために，説明変数と目的変数のスコアの両方を確認する．</p>
-<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="co"># response variable</span>
-<span class="va">PLS_score_Y</span> <span class="op">&lt;-</span> <span class="va">pls</span><span class="op">$</span><span class="va">U</span><span class="op">[</span>,<span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">1</span>,<span class="fl">2</span><span class="op">)</span><span class="op">]</span> <span class="co"># First and second PLS</span>
+<p><img src="pls_files/figure-html/unnamed-chunk-6-1.png" width="480"></p>
+この結果より，主成分分析における主成分係数とは異なり，PLS係数は「PLSスコアと各代謝物の相関係数」には<b>比例しない</b>ことが確認できる．
+<p>
+</p>
+<p>
+PLS係数とPLS負荷量の関係が不明であることから，PLS負荷量がどのように定義できるのかを考える．
+</p>
+<p>
+</p>
+<p>
+</p>
+<p>PLSには，ここまで使用してきたスコア(説明変数)に加えて，もう一つスコア(目的変数)が存在する． 説明変数と目的変数のスコアをそれぞれ以下に示す．</p>
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="va">PLS_score_Y</span> <span class="op">&lt;-</span> <span class="va">pls</span><span class="op">$</span><span class="va">U</span><span class="op">[</span>,<span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">1</span>,<span class="fl">2</span><span class="op">)</span><span class="op">]</span> <span class="co"># First and second PLS (response variable)</span>
 
 <span class="fu"><a href="https://rdrr.io/r/graphics/par.html">par</a></span><span class="op">(</span>mfrow<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">1</span>,<span class="fl">2</span><span class="op">)</span><span class="op">)</span>
 <span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html">plot</a></span><span class="op">(</span><span class="va">PLS_score</span>, col<span class="op">=</span><span class="va">class</span>, pch<span class="op">=</span><span class="fl">16</span>, cex<span class="op">=</span><span class="fl">2</span>, xlab<span class="op">=</span><span class="st">"PLS1"</span>, ylab<span class="op">=</span><span class="st">"PLS2"</span>, main<span class="op">=</span><span class="st">"PLS(X) Score"</span><span class="op">)</span>
 <span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html">plot</a></span><span class="op">(</span><span class="va">PLS_score_Y</span>, col<span class="op">=</span><span class="va">class</span>, pch<span class="op">=</span><span class="fl">16</span>, cex<span class="op">=</span><span class="fl">2</span>, xlab<span class="op">=</span><span class="st">"PLS1"</span>, ylab<span class="op">=</span><span class="st">"PLS2"</span>, main<span class="op">=</span><span class="st">"PLS(Y) Score"</span><span class="op">)</span></code></pre></div>
-<p><img src="pls_files/figure-html/unnamed-chunk-6-1.png" width="960"></p>
-上図の(左)は，先述の説明変数のPLS1とPLS2のスコア，(右)は目的変数のPLS1とPLS2のスコアをプロットしたものである．
+<p><img src="pls_files/figure-html/unnamed-chunk-7-1.png" width="960"></p>
+上図の(左)は，説明変数のPLS1とPLS2のスコア，(右)は目的変数のPLS1とPLS2のスコアをプロットしたものである．
+<p>
+</p>
 <p>
 左右の図を確認すると，Wild type(黒)，高脂血症ウサギ(赤)，薬剤投与後の高脂血症ウサギ(緑)の各群の配置はいずれも同じ傾向を示していることが確認できる．
 </p>
 <p>
-横軸のPLS1では，Wild typeと高脂血症群との違いが確認されることから，ここではPLS1に着目し，関連する代謝物を調べる．<br></p>
-<p>
 </p>
-<p>ここで，PLS係数とPLS1の「目的変数のスコアと各代謝物の相関係数」をプロットした結果を次に示す．<br></p>
-<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<p>次に，PLS係数とPLS1の「目的変数のスコアと各代謝物の相関係数」をプロットした結果を示す．<br></p>
+<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="co"># correlation with PLS score of response variables</span>
 <span class="va">R</span> <span class="op">&lt;-</span> <span class="cn">NULL</span>
 <span class="kw">for</span><span class="op">(</span><span class="va">i</span> <span class="kw">in</span> <span class="fl">1</span><span class="op">:</span><span class="fu"><a href="https://rdrr.io/r/base/nrow.html">ncol</a></span><span class="op">(</span><span class="va">X</span><span class="op">)</span><span class="op">)</span><span class="op">{</span>
   <span class="va">R</span><span class="op">[</span><span class="va">i</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/cor.test.html">cor.test</a></span><span class="op">(</span><span class="va">PLS_score_Y</span><span class="op">[</span>,<span class="fl">1</span><span class="op">]</span>,<span class="va">X</span><span class="op">[</span>,<span class="va">i</span><span class="op">]</span><span class="op">)</span><span class="op">$</span><span class="va">estimate</span>
 <span class="op">}</span>
 
-<span class="co"># plot(PLS_score_Y[,1], col=class, pch=16, cex=2, xlab="Sample", ylab="PLS1")</span>
-
-<span class="co"># PLS weight is proportional with PLS score of response variable</span>
 <span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html">plot</a></span><span class="op">(</span><span class="va">PLS1_weight</span>, <span class="va">R</span><span class="op">)</span></code></pre></div>
-<p><img src="pls_files/figure-html/unnamed-chunk-7-1.png" width="480"></p>
-この結果より，PLS係数は「目的変数のスコアと各代謝物の相関係数」に比例することが確認できる．<br> そこで，PLS負荷量を「説明変数のスコアと各代謝物の相関係数」ではなく「目的変数のスコアと各代謝物の相関係数」として定義する．ただし，前述の通り説明変数のスコアと目的変数のスコアの傾向は似ていることから，感覚的には両者に大きな違いは無い．
+<p><img src="pls_files/figure-html/unnamed-chunk-8-1.png" width="480"></p>
+この結果より，PLS係数は「目的変数のスコアと各代謝物の相関係数」に比例することが確認できる． そこで，PLS負荷量を「説明変数のスコアと各代謝物の相関係数」ではなく<b>「目的変数のスコアと各代謝物の相関係数」</b>として定義する．ただし，前述の通り説明変数のスコアと目的変数のスコアの傾向は似ていることから，感覚的には両者に大きな違いは無い．
 <p>
 </p>
-<p>loadingsパッケージを用いたPLS負荷量は，pls_loadings関数を用い，以下のように簡単に計算することが出来る． <br> 次に，PLS1負荷量の値が大きな上位10物質を選ぶと以下のようになる．</p>
-<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
+<p>loadingsパッケージを用いたPLS負荷量は，pls_loadings関数を用い，以下のように簡単に計算することが出来る．</p>
+<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">pls</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/loadings/man/pls_loading.html">pls_loading</a></span><span class="op">(</span><span class="va">pls</span><span class="op">)</span>
 
 <span class="va">PLS_loading</span> <span class="op">&lt;-</span> <span class="va">pls</span><span class="op">$</span><span class="va">loading</span><span class="op">$</span><span class="va">R</span>
-<span class="va">p_PLS</span> <span class="op">&lt;-</span> <span class="va">pls</span><span class="op">$</span><span class="va">loading</span><span class="op">$</span><span class="va">p.value</span> <span class="co"># Statistical hypothesis testing of PC loading</span>
-
-<span class="fu"><a href="https://rdrr.io/r/base/colnames.html">rownames</a></span><span class="op">(</span><span class="va">PLS_loading</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="va">metabolite_name</span>
+<span class="va">p_PLS</span> <span class="op">&lt;-</span> <span class="va">pls</span><span class="op">$</span><span class="va">loading</span><span class="op">$</span><span class="va">p.value</span> </code></pre></div>
+<p>PLS負荷量の統計的仮説検定により，p-valueを用いて有意な代謝物を選ぶことも出来る[<a href="https://analyticalsciencejournals.onlinelibrary.wiley.com/doi/abs/10.1002/cem.2883">Yamamoto H., Journal of Chemometrics, 31(3) (2017) e2883.</a>]．</p>
+</div>
+<div id="pls負荷量を用いて代謝物を選ぶ" class="section level2">
+<h2 class="hasAnchor">
+<a href="#pls%E8%B2%A0%E8%8D%B7%E9%87%8F%E3%82%92%E7%94%A8%E3%81%84%E3%81%A6%E4%BB%A3%E8%AC%9D%E7%89%A9%E3%82%92%E9%81%B8%E3%81%B6" class="anchor"></a>PLS負荷量を用いて代謝物を選ぶ</h2>
+<p>次に，PLS1負荷量の値が大きな上位10物質を選ぶと以下のようになる．</p>
+<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/colnames.html">rownames</a></span><span class="op">(</span><span class="va">PLS_loading</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="va">metabolite_name</span>
 
 <span class="va">PLS1_loading</span> <span class="op">&lt;-</span> <span class="va">PLS_loading</span><span class="op">[</span>,<span class="fl">1</span><span class="op">]</span>
 <span class="va">p_PLS1</span> <span class="op">&lt;-</span> <span class="va">p_PLS</span><span class="op">[</span>,<span class="fl">1</span><span class="op">]</span>
@@ -295,7 +305,7 @@ pre {
 ##                       0.5104925                       0.4895653 
 ##                      Creatinine                    5-Oxoproline 
 ##                       0.4807020                       0.4451055</code></pre>
-<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="co"># top 10 metabolites (negatively correlated)</span>
 <span class="va">PLS1_loading</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/order.html">order</a></span><span class="op">(</span><span class="va">PLS1_loading</span>, decreasing<span class="op">=</span><span class="cn">FALSE</span><span class="op">)</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">10</span><span class="op">]</span><span class="op">]</span></code></pre></div>
 <pre><code>##                      NADH              Hypoxanthine Pyridoxamine 5'-phosphate 
@@ -306,40 +316,40 @@ pre {
 ##                -0.7523210                -0.7447960                -0.7328608 
 ##                  Cytosine 
 ##                -0.7111778</code></pre>
-<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">index_pos</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/order.html">order</a></span><span class="op">(</span><span class="va">PLS1_loading</span>, decreasing<span class="op">=</span><span class="cn">TRUE</span><span class="op">)</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span>
 <span class="va">index_neg</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/order.html">order</a></span><span class="op">(</span><span class="va">PLS1_loading</span>, decreasing<span class="op">=</span><span class="cn">FALSE</span><span class="op">)</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span></code></pre></div>
-<p><br> 第1PLS負荷量が0.7以上の代謝物は2物質，-0.7以下の代謝物は11物質，第1PLS負荷量の統計的仮説検定の結果p&lt;0.05の代謝物は14物質，Benjamini-Hochberg法によるq-valueが0.05未満の代謝物は確認できなかった． <br></p>
-<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
+<p><br> 第1PLS負荷量が0.7以上の代謝物は2物質，-0.7以下の代謝物は11物質，第1PLS負荷量の統計的仮説検定の結果p&lt;0.05の代謝物は14物質，Benjamini-Hochberg法によるq-valueがq&lt;0.05の代謝物は確認できなかった． <br></p>
+<div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="co"># Number of positively correlated metabolties</span>
 <span class="fu"><a href="https://rdrr.io/r/base/sum.html">sum</a></span><span class="op">(</span><span class="va">PLS1_loading</span><span class="op">&gt;=</span><span class="fl">0.7</span><span class="op">)</span></code></pre></div>
 <pre><code>## [1] 2</code></pre>
-<div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb21"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="co"># Number of negatively correlated metabolties</span>
 <span class="fu"><a href="https://rdrr.io/r/base/sum.html">sum</a></span><span class="op">(</span><span class="va">PLS1_loading</span><span class="op">&lt;=</span><span class="op">-</span><span class="fl">0.7</span><span class="op">)</span></code></pre></div>
 <pre><code>## [1] 11</code></pre>
-<div class="sourceCode" id="cb21"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb23"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="co"># Number of significant metabolites under p&lt;0.05</span>
 <span class="fu"><a href="https://rdrr.io/r/base/sum.html">sum</a></span><span class="op">(</span><span class="va">p_PLS1</span> <span class="op">&lt;</span> <span class="fl">0.05</span><span class="op">)</span></code></pre></div>
 <pre><code>## [1] 14</code></pre>
-<div class="sourceCode" id="cb23"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb25"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="co"># Number of significant metabolites under q&lt;0.05</span>
 <span class="va">q</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/p.adjust.html">p.adjust</a></span><span class="op">(</span><span class="va">p_PLS1</span>,method<span class="op">=</span><span class="st">"BH"</span><span class="op">)</span>
 <span class="fu"><a href="https://rdrr.io/r/base/sum.html">sum</a></span><span class="op">(</span><span class="va">q</span> <span class="op">&lt;</span> <span class="fl">0.05</span><span class="op">)</span></code></pre></div>
 <pre><code>## [1] 0</code></pre>
-<p><br> 最後に，第1PLSスコア(目的変数)と最も相関の高い代謝物は，それぞれ3-Hydroxy-3-methylglutaric acidとNADHであり，その値はそれぞれ3-Hydroxy-3-methylglutaric acid(R=0.7537, p=0.0190, q=0.3594)， NADH(R=-0.8253, p=0.0061, q=0.3594)であった． <br></p>
-<div class="sourceCode" id="cb25"><pre class="downlit sourceCode r">
+<p><br> 最後に，第1PLSスコア(目的変数)と正負で最も相関の高い代謝物は，それぞれ3-Hydroxy-3-methylglutaric acidとNADHであり，その値はそれぞれ3-Hydroxy-3-methylglutaric acid(R=0.7537, p=0.0190, q=0.3594)， NADH(R=-0.8253, p=0.0061, q=0.3594)であった． <br></p>
+<div class="sourceCode" id="cb27"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="co"># 3-Hydroxy-3-methylglutaric acid</span>
 <span class="fu"><a href="https://rdrr.io/r/graphics/par.html">par</a></span><span class="op">(</span>mfrow<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">1</span>,<span class="fl">2</span><span class="op">)</span><span class="op">)</span>
 <span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html">plot</a></span><span class="op">(</span><span class="va">PLS_score_Y</span><span class="op">[</span>,<span class="fl">1</span><span class="op">]</span>, col<span class="op">=</span><span class="va">class</span>, pch<span class="op">=</span><span class="fl">16</span>, cex<span class="op">=</span><span class="fl">2</span>, xlab <span class="op">=</span><span class="st">"Sample"</span>, ylab<span class="op">=</span><span class="st">"PLS1(Y)"</span>, main<span class="op">=</span><span class="st">"PLS(Y) score"</span><span class="op">)</span>
 <span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html">plot</a></span><span class="op">(</span><span class="va">X</span><span class="op">[</span>,<span class="fu"><a href="https://rdrr.io/r/base/order.html">order</a></span><span class="op">(</span><span class="va">PLS1_loading</span>, decreasing<span class="op">=</span><span class="cn">TRUE</span><span class="op">)</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span>, col<span class="op">=</span><span class="va">class</span>, pch<span class="op">=</span><span class="fl">16</span>, cex<span class="op">=</span><span class="fl">2</span>, xlab<span class="op">=</span><span class="st">"Sample"</span>, ylab<span class="op">=</span><span class="st">"Relative Area"</span>,  main<span class="op">=</span><span class="st">"3-Hydroxy-3-methylglutaric acid"</span><span class="op">)</span></code></pre></div>
-<p><img src="pls_files/figure-html/unnamed-chunk-10-1.png" width="960"></p>
-<div class="sourceCode" id="cb26"><pre class="downlit sourceCode r">
+<p><img src="pls_files/figure-html/unnamed-chunk-12-1.png" width="960"></p>
+<div class="sourceCode" id="cb28"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="co"># NADH</span>
 <span class="fu"><a href="https://rdrr.io/r/graphics/par.html">par</a></span><span class="op">(</span>mfrow<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">1</span>,<span class="fl">2</span><span class="op">)</span><span class="op">)</span>
 <span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html">plot</a></span><span class="op">(</span><span class="va">PLS_score_Y</span><span class="op">[</span>,<span class="fl">1</span><span class="op">]</span>, col<span class="op">=</span><span class="va">class</span>, pch<span class="op">=</span><span class="fl">16</span>, cex<span class="op">=</span><span class="fl">2</span>, xlab<span class="op">=</span><span class="st">"Sample"</span>, ylab<span class="op">=</span><span class="st">"PLS1(Y)"</span>, main<span class="op">=</span><span class="st">"PLS(Y) score"</span><span class="op">)</span>
 <span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html">plot</a></span><span class="op">(</span><span class="va">X</span><span class="op">[</span>,<span class="fu"><a href="https://rdrr.io/r/base/order.html">order</a></span><span class="op">(</span><span class="va">PLS1_loading</span>, decreasing<span class="op">=</span><span class="cn">FALSE</span><span class="op">)</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span>, col<span class="op">=</span><span class="va">class</span>, pch<span class="op">=</span><span class="fl">16</span>, cex<span class="op">=</span><span class="fl">2</span>, xlab <span class="op">=</span><span class="st">"Sample"</span>, ylab<span class="op">=</span><span class="st">"Relative Area"</span>, main<span class="op">=</span><span class="st">"NADH"</span><span class="op">)</span></code></pre></div>
-<p><img src="pls_files/figure-html/unnamed-chunk-10-2.png" width="960"></p>
+<p><img src="pls_files/figure-html/unnamed-chunk-12-2.png" width="960"></p>
 </div>
 <div id="partial-least-squares-rank-order-of-groups-pls-rogを用いた解析" class="section level2">
 <h2 class="hasAnchor">
@@ -348,44 +358,41 @@ PLSでは，Wild typeと高脂血症群の違いは確認出来たが，高脂�
 <p>
 </p>
 <p>そこで群に順序があるデータに適したPLS-ROG[<a href="https://analyticalsciencejournals.onlinelibrary.wiley.com/doi/10.1002/cem.2883">Yamamoto, H. PLS-ROG: Partial least squares with rank order of groups.J.Chemom. 2017, 31, e2883.</a>]を用いて解析を行った結果を次に示す．</p>
-<div class="sourceCode" id="cb27"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb29"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">D</span> <span class="op">&lt;-</span> <span class="va">whhl</span><span class="op">$</span><span class="va">D</span> <span class="co"># Differentially matrix</span>
 
 <span class="va">plsrog</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/loadings/man/pls_rog.html">pls_rog</a></span><span class="op">(</span><span class="va">X</span>,<span class="va">Y</span>,<span class="va">D</span><span class="op">)</span>
-
 <span class="va">PLSROG_score</span> <span class="op">&lt;-</span> <span class="va">plsrog</span><span class="op">$</span><span class="cn">T</span><span class="op">[</span>,<span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">1</span>,<span class="fl">2</span><span class="op">)</span><span class="op">]</span> <span class="co"># First and second PLS</span>
-
-<span class="va">class</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">1</span>,<span class="fl">1</span>,<span class="fl">1</span>,<span class="fl">2</span>,<span class="fl">2</span>,<span class="fl">2</span>,<span class="fl">3</span>,<span class="fl">3</span>,<span class="fl">3</span><span class="op">)</span>
 
 <span class="fu"><a href="https://rdrr.io/r/graphics/par.html">par</a></span><span class="op">(</span>mfrow<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">1</span>,<span class="fl">2</span><span class="op">)</span><span class="op">)</span>
 <span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html">plot</a></span><span class="op">(</span><span class="va">PLS_score</span>, col<span class="op">=</span><span class="va">class</span>, pch<span class="op">=</span><span class="fl">16</span>, cex<span class="op">=</span><span class="fl">2</span>, xlab<span class="op">=</span><span class="st">"PLS1"</span>, ylab<span class="op">=</span><span class="st">"PLS2"</span>, main<span class="op">=</span><span class="st">"PLS(X) score"</span><span class="op">)</span>
 <span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html">plot</a></span><span class="op">(</span><span class="va">PLSROG_score</span>, col<span class="op">=</span><span class="va">class</span>, pch<span class="op">=</span><span class="fl">16</span>, cex<span class="op">=</span><span class="fl">2</span>, xlab<span class="op">=</span><span class="st">"PLS1"</span>, ylab<span class="op">=</span><span class="st">"PLS2"</span>, main<span class="op">=</span><span class="st">"PLS-ROG(X) score"</span><span class="op">)</span></code></pre></div>
-<img src="pls_files/figure-html/unnamed-chunk-11-1.png" width="960"><p>
+<img src="pls_files/figure-html/unnamed-chunk-13-1.png" width="960"><p>
 </p>
 <p>上図の左にPLS，右にPLS-ROGスコアの結果を示す．一見すると大きな違いは無いようにも見えるが，PLS-ROGの方が群に順序があるスコアが得られている．PLS1とPLS-ROG1のスコアの群毎の箱ひげ図を以下に示す．</p>
-<div class="sourceCode" id="cb28"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb30"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/graphics/par.html">par</a></span><span class="op">(</span>mfrow<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">1</span>,<span class="fl">2</span><span class="op">)</span><span class="op">)</span>
 <span class="fu"><a href="https://rdrr.io/r/graphics/boxplot.html">boxplot</a></span><span class="op">(</span><span class="va">PLS_score</span><span class="op">[</span>,<span class="fl">1</span><span class="op">]</span><span class="op">~</span><span class="va">class</span>, ylab<span class="op">=</span><span class="st">"PLS1"</span>, main<span class="op">=</span><span class="st">"PLS1(X) Score"</span><span class="op">)</span>
 <span class="fu"><a href="https://rdrr.io/r/graphics/boxplot.html">boxplot</a></span><span class="op">(</span><span class="va">PLSROG_score</span><span class="op">[</span>,<span class="fl">1</span><span class="op">]</span><span class="op">~</span><span class="va">class</span>, ylab<span class="op">=</span><span class="st">"PLS-ROG1"</span>, main<span class="op">=</span><span class="st">"PLS-ROG1(Y) Score"</span><span class="op">)</span></code></pre></div>
-<img src="pls_files/figure-html/unnamed-chunk-12-1.png" width="960"><p>
+<img src="pls_files/figure-html/unnamed-chunk-14-1.png" width="960"><p>
 </p>
 <p>さらにPLSの目的変数のスコアを確認すると，次のようになる．</p>
-<div class="sourceCode" id="cb29"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb31"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">PLSROG_score_Y</span> <span class="op">&lt;-</span> <span class="va">plsrog</span><span class="op">$</span><span class="va">U</span><span class="op">[</span>,<span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">1</span>,<span class="fl">2</span><span class="op">)</span><span class="op">]</span> <span class="co"># First and second PLS</span>
 
 <span class="fu"><a href="https://rdrr.io/r/graphics/par.html">par</a></span><span class="op">(</span>mfrow<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">1</span>,<span class="fl">2</span><span class="op">)</span><span class="op">)</span>
 <span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html">plot</a></span><span class="op">(</span><span class="va">PLS_score_Y</span>, col<span class="op">=</span><span class="va">class</span>, pch<span class="op">=</span><span class="fl">16</span>, cex<span class="op">=</span><span class="fl">2</span>, xlab<span class="op">=</span><span class="st">"PLS1"</span>, ylab<span class="op">=</span><span class="st">"PLS2"</span>, main<span class="op">=</span><span class="st">"PLS(Y) Score"</span><span class="op">)</span>
 <span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html">plot</a></span><span class="op">(</span><span class="va">PLSROG_score_Y</span>, col<span class="op">=</span><span class="va">class</span>, pch<span class="op">=</span><span class="fl">16</span>, cex<span class="op">=</span><span class="fl">2</span>, xlab<span class="op">=</span><span class="st">"PLS-ROG1"</span>, ylab<span class="op">=</span><span class="st">"PLS-ROG2"</span>, main<span class="op">=</span><span class="st">"PLS-ROG(Y) Score"</span><span class="op">)</span></code></pre></div>
-<img src="pls_files/figure-html/unnamed-chunk-13-1.png" width="960"><p>
+<img src="pls_files/figure-html/unnamed-chunk-15-1.png" width="960"><p>
 上図の左がPLS，右がPLS-ROGのスコアである．この結果より，PLS-ROGの横軸のPLS-ROG1で群の順序が確認出来ており， 薬剤投与によって高脂血症群がWild typeに近づく傾向が得られていることから，PLS-ROG1負荷量より，薬剤投与により変動する代謝物を選び出すことが出来る．
 </p>
 <p>
 </p>
-<div class="sourceCode" id="cb30"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb32"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/graphics/par.html">par</a></span><span class="op">(</span>mfrow<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">1</span>,<span class="fl">2</span><span class="op">)</span><span class="op">)</span>
 <span class="fu"><a href="https://rdrr.io/r/graphics/boxplot.html">boxplot</a></span><span class="op">(</span><span class="va">PLS_score_Y</span><span class="op">[</span>,<span class="fl">1</span><span class="op">]</span><span class="op">~</span><span class="va">class</span>, ylab<span class="op">=</span><span class="st">"PLS1"</span>, main<span class="op">=</span><span class="st">"PLS(Y) Score"</span><span class="op">)</span>
 <span class="fu"><a href="https://rdrr.io/r/graphics/boxplot.html">boxplot</a></span><span class="op">(</span><span class="va">PLSROG_score_Y</span><span class="op">[</span>,<span class="fl">1</span><span class="op">]</span><span class="op">~</span><span class="va">class</span>, ylab<span class="op">=</span><span class="st">"PLS-ROG1"</span>, main<span class="op">=</span><span class="st">"PLS-ROG(Y) Score"</span><span class="op">)</span></code></pre></div>
-<p><img src="pls_files/figure-html/unnamed-chunk-14-1.png" width="960"></p>
+<p><img src="pls_files/figure-html/unnamed-chunk-16-1.png" width="960"></p>
 </div>
 <div id="pls-rog負荷量を用いて代謝物を選ぶ" class="section level2">
 <h2 class="hasAnchor">
@@ -395,34 +402,32 @@ PLS-ROG負荷量は，PLS負荷量と同じく「目的変数のスコアと各�
 </p>
 <p>
 </p>
-<div class="sourceCode" id="cb31"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb33"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">plsrog</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/loadings/man/pls_loading.html">pls_loading</a></span><span class="op">(</span><span class="va">plsrog</span><span class="op">)</span>
-
 <span class="va">PLSROG_loading</span> <span class="op">&lt;-</span> <span class="va">plsrog</span><span class="op">$</span><span class="va">loading</span><span class="op">$</span><span class="va">R</span>
 <span class="va">p_PLSROG</span> <span class="op">&lt;-</span> <span class="va">plsrog</span><span class="op">$</span><span class="va">loading</span><span class="op">$</span><span class="va">p.value</span>
-
 <span class="va">q1</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/p.adjust.html">p.adjust</a></span><span class="op">(</span><span class="va">p_PLSROG</span><span class="op">[</span>,<span class="fl">1</span><span class="op">]</span>,method<span class="op">=</span><span class="st">"BH"</span><span class="op">)</span></code></pre></div>
 <p>
 最も正の相関が高い代謝物はN,N-Dimethylglycine(R=0.8869,p=0.0014,q=0.0994)を以下に示す．
 </p>
 <p>
 </p>
-<div class="sourceCode" id="cb32"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb34"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="co"># N,N-Dimethylglycine</span>
 <span class="fu"><a href="https://rdrr.io/r/graphics/par.html">par</a></span><span class="op">(</span>mfrow<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">1</span>,<span class="fl">2</span><span class="op">)</span><span class="op">)</span>
 <span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html">plot</a></span><span class="op">(</span><span class="va">PLSROG_score_Y</span><span class="op">[</span>,<span class="fl">1</span><span class="op">]</span>, col<span class="op">=</span><span class="va">class</span>, pch<span class="op">=</span><span class="fl">16</span>, cex<span class="op">=</span><span class="fl">2</span>, xlab<span class="op">=</span><span class="st">"Sample"</span>, ylab<span class="op">=</span><span class="st">"PLS-ROG1"</span>, main<span class="op">=</span><span class="st">"PLS-ROG1(Y) Score"</span><span class="op">)</span>
 <span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html">plot</a></span><span class="op">(</span><span class="va">X</span><span class="op">[</span>,<span class="fu"><a href="https://rdrr.io/r/base/order.html">order</a></span><span class="op">(</span><span class="va">PLSROG_loading</span><span class="op">[</span>,<span class="fl">1</span><span class="op">]</span>, decreasing<span class="op">=</span><span class="cn">TRUE</span><span class="op">)</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span>, col<span class="op">=</span><span class="va">class</span>, pch<span class="op">=</span><span class="fl">16</span>, cex<span class="op">=</span><span class="fl">2</span>, xlab<span class="op">=</span><span class="st">"Sample"</span>, ylab<span class="op">=</span><span class="st">"Relative Area"</span>, main<span class="op">=</span><span class="st">"N,N-Dimethylglycine"</span><span class="op">)</span></code></pre></div>
-<img src="pls_files/figure-html/unnamed-chunk-16-1.png" width="960"><p>
+<img src="pls_files/figure-html/unnamed-chunk-18-1.png" width="960"><p>
 最も負の相関が高い代謝物はHypoxanthine(R=-0.8770,p=0.0019,q=0.0994)を以下に示す．
 </p>
 <p>
 </p>
-<div class="sourceCode" id="cb33"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb35"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="co"># Hypoxanthine</span>
 <span class="fu"><a href="https://rdrr.io/r/graphics/par.html">par</a></span><span class="op">(</span>mfrow<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">1</span>,<span class="fl">2</span><span class="op">)</span><span class="op">)</span>
 <span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html">plot</a></span><span class="op">(</span><span class="va">PLSROG_score_Y</span><span class="op">[</span>,<span class="fl">1</span><span class="op">]</span>, col<span class="op">=</span><span class="va">class</span>, pch<span class="op">=</span><span class="fl">16</span>, cex<span class="op">=</span><span class="fl">2</span>, xlab<span class="op">=</span><span class="st">"Sample"</span>, ylab<span class="op">=</span><span class="st">"PLS-ROG1"</span>, main<span class="op">=</span><span class="st">"PLS-ROG1(Y) Score"</span><span class="op">)</span>
 <span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html">plot</a></span><span class="op">(</span><span class="va">X</span><span class="op">[</span>,<span class="fu"><a href="https://rdrr.io/r/base/order.html">order</a></span><span class="op">(</span><span class="va">PLSROG_loading</span><span class="op">[</span>,<span class="fl">1</span><span class="op">]</span>, decreasing<span class="op">=</span><span class="cn">FALSE</span><span class="op">)</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span>, col<span class="op">=</span><span class="va">class</span>, pch<span class="op">=</span><span class="fl">16</span>, cex<span class="op">=</span><span class="fl">2</span>, xlab<span class="op">=</span><span class="st">"Sample"</span>, ylab<span class="op">=</span><span class="st">"Relative Area"</span>, main<span class="op">=</span><span class="st">"Hypoxanthine"</span><span class="op">)</span></code></pre></div>
-<img src="pls_files/figure-html/unnamed-chunk-17-1.png" width="960"><p>
+<img src="pls_files/figure-html/unnamed-chunk-19-1.png" width="960"><p>
 </p>
 <p>以上のように，PLSで群の順序が確認されない場合にPLS-ROGを用いることで群の順序に関連するスコアが得られ，またその負荷量から関連する代謝物を選び出すことが出来る．</p>
 </div>
