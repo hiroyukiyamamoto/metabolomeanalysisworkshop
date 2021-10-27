@@ -34,10 +34,11 @@ knitr::opts_chunk$set(echo = TRUE)
 <P>
 - データの説明
     - loadingsパッケージのデモデータfastingを利用する
-    - 通常飼育と12時間絶食後のマウスの肝臓のメタボロームデータ
+    - 通常飼育と12時間絶食後のマウスの肝臓のメタボロームデータ(各群n=5)
 
 ## ライブラリとデータの読み込み
-fastingの変数Xにメタボロームデータが含まれている．
+
+はじめに，loadingsパッケージのデモデータfastingを読み込む．実際の解析の場合は，csvファイルをread.csv関数などでデータを読み込んで利用する．
 
 ```{r}
 library(loadings)
@@ -46,34 +47,34 @@ data(fasting)
 X <- fasting$X
 ```
 
-主成分分析には，prcomp関数が用いられる．またここではデータをautoscaling(各代謝物毎に，平均0，分散1にする)
-によるスケーリングを行っている．第1主成分と第2主成分スコアをプロットしたものを以下に示す．
+fastingの変数Xに，各行にサンプル，各列に代謝物のメタボロームデータが含まれている．<BR>
+<P>
+次に，主成分分析を行う．主成分分析はprcomp関数を用いる．ここではデータをautoscaling(各代謝物毎に，平均0，分散1にする)
+によるスケーリングを行っている．<BR>
 
 ```{r fig.width=5}
-# PCA
-pca <- prcomp(X,scale=TRUE) # autoscaling
-
-# PC score
-PC_score <- pca$x[,c(1,2)] # First and second PCs
+pca <- prcomp(X,scale=TRUE) # PCA with autoscaling
+PC_score <- pca$x[,c(1,2)] # First and second PC score
 
 # PC score plot
 class <- c(1,1,1,1,1,2,2,2,2,2)
 plot(PC_score, col=class, pch=16, cex=2)
 ```
 
-黒丸が通常飼育，赤丸が12時間絶食後のマウスを表している．<BR>
+第1主成分と第2主成分スコアをプロットしたスコアプロットを上に示す．黒丸が通常飼育，赤丸が12時間絶食後のマウスを表している．<P>
 <P>
-主成分分析の結果より，第1主成分で群間差が確認されたことから，第1主成分スコアと関連する代謝物を確認することで，12時間の絶食で低値もしくは高値を示す代謝物を確認することが出来る．<BR>
-<P>
-次に実際に第1主成分スコアと関連する代謝物を主成分係数を用いて確認する．主成分係数の値が正または負に大きな上位10個の代謝物は次のようになる．
+主成分分析の結果より，第1主成分で群間差が確認されたことから，第1主成分スコアと関連する代謝物を確認することで，12時間の絶食で低値もしくは高値を示す代謝物を確認することが出来る．
 
 ```{r}
-# weight / PC coefficient / eigenvector
-PC_weight <- pca$rotation
+PC_weight <- pca$rotation # weight / PC coefficient / eigenvector
+PC1_weight <- pca$rotation[,1] # PC1 weight
+```
 
-# PC1 weight
-PC1_weight <- pca$rotation[,1]
+prcomp関数の結果(ここではpca)に含まれる変数rotationが，主成分係数(重み，固有ベクトル)である．<P>
+<P>
+実際に，第1主成分スコアと関連する代謝物を主成分係数を用いて確認する．主成分係数の値が正または負に大きな上位10個の代謝物は次のようになる．
 
+```{r}
 # top 10 metabolites (positively correlated)
 PC1_weight[order(PC1_weight, decreasing=TRUE)[1:10]]
 
@@ -81,18 +82,17 @@ PC1_weight[order(PC1_weight, decreasing=TRUE)[1:10]]
 PC1_weight[order(PC1_weight, decreasing=FALSE)[1:10]]
 ```
 
-主成分係数の値を見れば，相対的に主成分スコアと関連する代謝物を見つけることが出来るが，
-その値の大きさがどの程度まで関連する代謝物と言えるのか判断することが難しい．
+主成分係数を用いて，主成分スコアと関連する代謝物を見つけることが出来るが，
+その値の大きさがどの程度であれば強く関連する代謝物と言えるのか，判断することが難しい．
 
 ## 主成分係数と主成分負荷量の関係
 
-そこで，主成分係数の代わりに主成分負荷量を利用することを考える．主成分負荷量は，「主成分スコアと各代謝物レベルの相関係数」で定義される．
+そこで，主成分係数の代わりに，「主成分スコアと各代謝物レベルの相関係数」である主成分負荷量を利用することを考える．
 <P>
 主成分係数と主成分負荷量の関係を確認するために，横軸に主成分係数，縦軸に主成分負荷量の散布図を以下に示す．
 
 ```{r fig.width=5}
 
-# explain of PC coefficient
 R <- NULL
 for(i in 1:ncol(X)){
   R[i] <- cor.test(PC_score[,1],X[,i])$estimate  
@@ -102,12 +102,13 @@ plot(PC1_weight,R, xlab = "PC coefficient", ylab="PC loading")
 
 ```
 
-この結果より，主成分係数は「主成分スコアと各代謝物レベルの相関係数」である主成分負荷量と比例することが確認できる．<BR>
-つまり，主成分係数を用いてその値が大きい方から選んだ代謝物と，主成分負荷量を用いて選んだ代謝物は一致する．<BR>
-それに加えて，主成分負荷量は「主成分スコアと各代謝物レベルの相関係数」として定義されることから，
-主成分負荷量を用いることで，例えば相関係数が0.7以上で強い相関があるといった統計的な基準で代謝物を選ぶことが出来る．
+この結果より，主成分係数は「主成分スコアと各代謝物レベルの相関係数」である主成分負荷量と比例することが確認できる．
+つまり，主成分係数と主成分負荷量を用いて選んだ代謝物は，お互いに一致することになる．<P>
 <P>
-主成分負荷量は，主成分スコアの分散の平方根を主成分係数に掛けることで計算することが出来る．
+それに加えて，主成分負荷量は「主成分スコアと各代謝物レベルの相関係数」として定義されることから，
+主成分負荷量を用いることで，例えば0.7以上で強い相関があるといった統計的な基準で代謝物を選ぶことが出来る．
+<P>
+主成分負荷量は，主成分スコアの分散の平方根(標準偏差)を主成分係数に掛けることで計算することが出来る．
 
 ```{r}
 lambda <- var(PC_score[,1])
@@ -122,11 +123,11 @@ PC_loading <- pca$loading$R
 p <- pca$loading$p.value
 ```
 
-また主成分負荷量の統計的仮説検定により，p-valueを用いて有意な代謝物を選ぶことも出来る．[<a href="https://bmcbioinformatics.biomedcentral.com/articles/10.1186/1471-2105-15-51">Yamamoto et al., BMC Bioinformatics, (2014) 15(1):51.</a>]
+また主成分負荷量の統計的仮説検定により，<I>p</I>-valueを用いて有意な代謝物を選ぶことも出来る．[<a href="https://bmcbioinformatics.biomedcentral.com/articles/10.1186/1471-2105-15-51">Yamamoto H. et al., BMC Bioinformatics, (2014) 15(1):51.</a>]
 
 ## 主成分負荷量を用いて代謝物を選ぶ
 
-実際に，第1主成分負荷量を用いて第1主成分スコアと関連する代謝物を選ぶ手順を次に示す．
+実際に，第1主成分負荷量を用いて第1主成分スコアと関連する代謝物を選ぶと以下のようになる．
 
 ```{r}
 PC1_loading <- PC_loading[,1]
@@ -139,9 +140,8 @@ PC1_loading[order(PC1_loading, decreasing=FALSE)[1:10]]
 
 ```
 
-第1主成分負荷量が0.7以上の代謝物は45物質，-0.7以下の代謝物70物質，
-第1主成分負荷量の統計的仮説検定の結果p<0.05の代謝物は138物質，
-Benjamini-Hochberg法によるq-valueが0.05未満の代謝物は102物質であることが以下のように確認できる．
+さらに，第1主成分負荷量が0.7以上の代謝物は45物質，-0.7以下の代謝物70物質，
+<I>p</I><0.05の代謝物は138物質，Benjamini-Hochberg法によるq-valueがq<0.05の代謝物は102物質であった．
 
 ```{r}
 # Number of positively correlated metabolties
@@ -171,7 +171,7 @@ plot(PC_score[,1], col=class, pch=16, cex=2, xlab="Sample", ylab="PC1")
 plot(X[,order(PC1_loading, decreasing=TRUE)[1]],col=class, pch=16, cex=2, xlab ="Sample", ylab="Ethanolamine phosphate")
 ```
 
-上図の左が第1主成分スコア，右がEthanolamine phosphateである．主成分負荷量(相関係数)の値が0.981と非常に高い値を示すことから分かるように，非常に良く似た傾向を示すことが確認できる．
+上図の左が第1主成分スコア，右がEthanolamine phosphateである(横軸はサンプル番号)．主成分負荷量(相関係数)の値が0.981と非常に高い値を示すことから分かるように，非常に良く似た傾向を示すことが確認できる．
 
 ```{r fig.width=10}
 # Betonicine (top 1 negatively correlated metabolite with PC1 score)
@@ -181,4 +181,4 @@ plot(X[,order(PC1_loading, decreasing=FALSE)[1]],col=class, pch=16, cex=2,xlab =
 
 ```
 
-上図の左が第1主成分スコア，右がBetonicineである．こちらは主成分負荷量(相関係数)の値が-0.980であり負に非常に高い値を示すことから，逆の傾向を示すことが確認できる．
+上図の左が第1主成分スコア，右がBetonicineである(横軸はサンプル番号)．こちらは主成分負荷量(相関係数)の値が-0.980であり負に非常に高い値を示すことから分かるように，お互いに逆の傾向を示すことが確認できる．
